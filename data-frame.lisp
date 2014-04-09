@@ -193,7 +193,7 @@ A 'strand' is a 'named colum' in R."
 
 
 (defmethod ref$ ((s sequence) (ref fixnum) &rest refs)
-  (let ((e (nth ref s)))
+  (let ((e (elt s ref)))
     (if refs
         (apply #'ref$ e refs)
         e)))
