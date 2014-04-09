@@ -1,0 +1,7 @@
+* Overview
+
+This package was written by Marco Antoniotti in April 2014 as a
+response to a query on comp.lang.lisp from AJ (Tony) Rossini <blindglobe@gmail.com>
+regarding types/arrays and R/style dataframes.
+
+Further packaging and repository work has been done by Tony.  

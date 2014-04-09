@@ -1,0 +1,12 @@
+;;;; -*- Mode: Lisp -*-
+
+;;;; rho.system --
+
+;;;; See the file COPYING for licencing and copyright information.
+
+(mk:defsystem "RHO"
+  :components ((:file "rho-package")
+               (:file "data-frame" :depends-on ("rho-package"))))
+
+
+;;;; end of file -- rho.system --
