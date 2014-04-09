@@ -5,3 +5,111 @@ response to a query on comp.lang.lisp from AJ (Tony) Rossini <blindglobe@gmail.c
 regarding types/arrays and R/style dataframes.
 
 Further packaging and repository work has been done by Tony.  
+
+* Example use of this package
+
+(taken from a response from Marco to Tony):
+
+> Does this help, Marco? 
+
+I am sorry, but I still do not understand what you mean by "computing with types"? 
+
+This is what I cooked up. 
+
+#+BEGIN_SRC lisp
+(setf df (make-data-frame '(foo #(1 2 3)) 
+                         '(bar ("a" "s" "d") string) 
+                         '(baz (100 102 97) (integer 90 110)))) 
+#+END_SRC
+
+
+#+BEGIN_EXAMPLE
+#S(DATA-FRAME :COLUMNS #(#S(STRAND :NAME FOO :DATA #(1 2 3) :ELEMENT-TYPE T) #S(STRAND :NAME BAR :DATA #("a" "s" "d") :ELEMENT-TYPE STRING) #S(STRAND :NAME BAZ :DATA #(100 102 97) :ELEMENT-TYPE (INTEGER 90 110)))) 
+#+END_EXAMPLE
+
+
+#+BEGIN_SRC lisp
+(pprint-data-frame df) 
+#+END_SRC
+
+#+BEGIN_EXAMPLE
+        FOO       BAR       BAZ 
+0         1       "a"       100 
+1         2       "s"       102 
+2         3       "d"        97 
+NIL 
+#+END_EXAMPLE
+
+
+#+BEGIN_SRC lisp
+(setf (ref$ df 'bar 2) 42) 
+#+END_SRC
+
+
+
+#+BEGIN_EXAMPLE
+Error: The assertion (TYPEP V COL-TYPE) failed. 
+  1 (continue) Retry assertion. 
+  2 (abort) Return to level 0. 
+  3 Return to top loop level 0. 
+
+Type :b for backtrace or :c <option number> to proceed. 
+Type :bug-form "<subject>" for a bug report template or :? for other options. 
+#+END_EXAMPLE
+
+
+#+BEGIN_SRC lisp
+(data-frame-column-types df) 
+#+END_SRC
+
+#+BEGIN_EXAMPLE 
+(T STRING (INTEGER 90 110)) 
+#+END_EXAMPLE
+
+
+#+BEGIN_SRC lisp
+(setf (ref$ df 'bar 2) "Works!") 
+#+END_SRC
+
+#+BEGIN_EXAMPLE 
+"Works!" 
+#+END_EXAMPLE
+
+
+#+BEGIN_SRC lisp
+RHO 123 > (pprint-data-frame df) 
+#+END_SRC
+
+#+BEGIN_EXAMPLE 
+        FOO       BAR       BAZ 
+0         1       "a"       100 
+1         2       "s"       102 
+2         3  "Works!"        97 
+NIL 
+#+END_EXAMPLE
+
+#+BEGIN_SRC lisp
+(typep (ref$ df 2 1) (ref$ (data-frame-column-types df) 2)) 
+#+END_SRC
+
+#+BEGIN_EXAMPLE
+T
+#+END_EXAMPLE
+
+Note that the REF$ is your XREF.  A STRAND is just a "named vector"
+with type info recorded in order to circumvent the implementation
+laziness.
+
+The code is longish and I can send it to you or whoever else wants it.
+Most of the hairiness goes into REF$.  More logic can go into a
+generalized JOIN operation (or CONCAT).
+
+Of course, no real compile-time use of the types can be made, but
+that's just the way it is.
+
+
+* API
+
+* Rejoinder
+
+ 
