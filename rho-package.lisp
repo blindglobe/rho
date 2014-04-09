@@ -26,6 +26,13 @@
   (:export
    "REF$"
    )
-  )
+
+  (:export :pprint-data-frame))
+
+
+(defpackage :rho-user
+  (:documentation "package for experiments and use demonstration.")
+  (:use :cl
+	:rho))
 
 ;;;; end of file -- rho-package.lisp --
