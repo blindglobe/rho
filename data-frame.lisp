@@ -192,6 +192,13 @@ A 'strand' is a 'named colum' in R."
         e)))
 
 
+(defmethod ref$ ((s sequence) (ref fixnum) &rest refs)
+  (let ((e (nth ref s)))
+    (if refs
+        (apply #'ref$ e refs)
+        e)))
+
+
 (defmethod ref$ ((a array) (ref fixnum) &rest refs)
   (let* ((ar (array-rank a))
          (rl (length refs))
@@ -228,8 +235,7 @@ A 'strand' is a 'named colum' in R."
                     :key #'strand-name
                     :test #'eq))
          (col-type (strand-element-type col))
-         (col-data (strand-data col))
-        )
+         (col-data (strand-data col)))
     (cond ((null refs)
            (assert (typep v `(vector ,col-type)))
            (setf (strand-data col) v))
@@ -238,15 +244,13 @@ A 'strand' is a 'named colum' in R."
            (setf (aref col-data (first refs)) v))
           (t
            (setf (apply #'ref$ (aref col-data (first refs)))
-                 (rest refs)))
-          )))
+                 (rest refs))))))
 
 
 (defmethod (setf ref$) (v (vec vector) (ref fixnum) &rest refs)
   (if (null refs)
       (setf (aref vec ref) v)
-      (setf (apply #'ref$ (aref vec ref) refs) v)
-      ))
+      (setf (apply #'ref$ (aref vec ref) refs) v)))
 
 ;;; You know the drill for the other (SETF REF$)
 ;;; ...
