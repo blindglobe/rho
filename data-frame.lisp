@@ -7,9 +7,7 @@
 (in-package "RHO")
 
 (eval-when (:load-toplevel :compile-toplevel :execute)
-  (shadow '(cl:length))
-  )
-
+  (shadow '(cl:length)))
 
 (defstruct (strand
             (:constructor %make-strand (name
@@ -55,11 +53,11 @@ A 'strand' is a 'named colum' in R."
 
 
 (defstruct (data-frame
-            (:constructor %make-data-frame (columns))) 
-   (columns #() :type (vector strand)) ; You cannot be more precise than this.
+	     (:constructor %make-data-frame (columns)))
+  (columns #() :type (vector strand)) ; You cannot be more precise than this.
 
   ;; add hash tables a gogo if you want to address things by 'name'... 
-  ) 
+  )
 
 
 (defmethod print-object ((df data-frame) stream)
@@ -82,14 +80,14 @@ A 'strand' is a 'named colum' in R."
   ;;
   ;;   (name data)
   ;;
-  ;; 3 - a NAMED-COLUMN
+  ;; 3 - a NAMED-COLUMN (ie. a STRAND)
 
   (flet ((process-col-spec (col-spec)
            (etypecase col-spec
              (strand col-spec)
              (list (destructuring-bind (name data &optional (et t et-supplied-p))
                        col-spec
-
+		     
                      (assert (typep data 'sequence))
 
                      ;; The MAP-INTO may be an overkill, but this lets
@@ -97,23 +95,19 @@ A 'strand' is a 'named colum' in R."
                      (let ((et (cond (et-supplied-p et)
                                      ((vectorp data)
                                       (array-element-type data))
-                                     (t et)))
-                           )
+                                     (t et))))
                        (make-strand
                         name
                         (map-into (make-array (length data)
                                               :element-type et
-                                              ;; Not that the above is
+                                              ;; Note that the above is
                                               ;; useless most of the
                                               ;; times, due to
                                               ;; U-A-E-T.
                                               )
                                   #'identity
                                   data)
-                        et
-                        )
-                       )))))
-         )
+                        et)))))))
     
     (loop for col-spec in cols-specs
           collect (process-col-spec col-spec) into cols
@@ -145,9 +139,7 @@ A 'strand' is a 'named colum' in R."
           for row = (mapcar (lambda (c) (aref c rn)) col-data-vs)
           do (format out "~V,@A~:{~V,@S~}~%"
                      rn-width rn
-                     (mapcar (lambda (e) (list field-width e)) row))
-    
-          )))
+                     (mapcar (lambda (e) (list field-width e)) row)))))
 
 
 (defun data-frame-column-names (df)
