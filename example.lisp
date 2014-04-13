@@ -1,4 +1,4 @@
-(ql:quickload :rho)
+(ql:quickload :rho :verbose T)
 
 (in-package :rho-user)
 
@@ -29,7 +29,7 @@ p1
 
 (defclass pointCLOS ()
   ((x :type float :initarg :x :initform 0.1)
-   (y :type float :initarg :y :initform 0.1))
+   (y :type float :initarg :y :initform 0.2))
   (:documentation "silly point class for illustration"))
 
 (defparameter p2 (make-instance 'pointCLOS))
@@ -63,11 +63,11 @@ df-2a
 
 ;; and we want 
 
-(ref$ df-2a 2 1) ; => 97
+(ref$ df-2a 2 1) ; => 102
 (ref$ df-2a 2 2) ; => 97
-(ref$ df-2a 3 2) ; => 97
+(ref$ df-2a 3 2) ; => #S(POINTSTR :X 3.0 :Y 2.0)
 
-(eval (ref$ df-2a 3 2)) ; => 97
+
 
 (vector (make-pointSTR :x 1.0 :y 2.0)
    (make-pointSTR :x 2.0 :y 2.0)
@@ -123,6 +123,7 @@ df-2a
 		     (make-pointSTR :x 3.0 :y 2.0))
 	     'pointSTR)
 
+;;; Typing examples for the naive.
 
 (typep #((make-pointSTR :x 1.0 :y 2.0)
 	 (make-pointSTR :x 2.0 :y 2.0)
