@@ -152,7 +152,7 @@ A 'strand' is a 'named colum' in R."
   (map 'list #'strand-element-type (data-frame-columns df)))
 
 
-(defun data-frame-as-matrix (df)
+(defun data-frame-as-lisp-array (df)
   (let ((cols (map 'list #'strand-data (data-frame-columns df))))
     (make-array (list (length (first cols)) (length cols))
                 :initial-contents cols)))

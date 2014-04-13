@@ -20,7 +20,7 @@
   (:export
    "DATA-FRAME-COLUMN-NAMES"
    "DATA-FRAME-COLUMN-TYPES"
-   "DATA-FRAME-AS-MATRIX"
+   "DATA-FRAME-AS-LISP-ARRAY"
    )
 
   (:export
