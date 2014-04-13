@@ -27,6 +27,10 @@ A 'strand' is a 'named colum' in R."
                     data
                     &optional
                     (element-type (array-element-type data)))
+  "Params:
+name:  symbol,
+data vector
+element-type: type  (opt)."
   (declare (type symbol name)
            (type vector data))
   (assert (every (lambda (d) (typep d element-type)) data))
@@ -69,18 +73,13 @@ A 'strand' is a 'named colum' in R."
 
 
 (defun make-data-frame (&rest cols-specs)
-  ;; Simple version, YMMV.
-  ;; Each element of COLS-SPEC is:
-  ;;
-  ;; 1 - a triple
-  ;;
-  ;;   (name data element-type)
-  ;;
-  ;; 2 - a pair
-  ;;
-  ;;   (name data)
-  ;;
-  ;; 3 - a NAMED-COLUMN (ie. a STRAND)
+  "Simple version, YMMV.
+
+ Each element of COLS-SPEC is one of:
+
+ 1 - a triple       : (name data element-type)
+ 2 - a pair         : (name data)
+ 3 - a NAMED-COLUMN : (ie. a STRAND)"
 
   (flet ((process-col-spec (col-spec)
            (etypecase col-spec
@@ -128,6 +127,9 @@ A 'strand' is a 'named colum' in R."
          )
 
     ;; The FORMATs below can be made smarter.
+
+    ;; blank line...
+    (format out "~%")
 
     ;; Headers
     (format out "~V,@A~:{~V,@S~}~%"
