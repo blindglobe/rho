@@ -103,6 +103,8 @@ element-type: type  (opt)."
                                               ;; useless most of the
                                               ;; times, due to
                                               ;; U-A-E-T.
+					      ;; U-A-element-type
+					      ;; behavior.
                                               )
                                   #'identity
                                   data)
@@ -123,18 +125,19 @@ element-type: type  (opt)."
          (col-data-vs (map 'list #'strand-data cols))
          (field-width 10) ; Fixed FTTB.
          (nr (length (first col-data-vs)))
-         (rn-width (length (format nil "~D" nr)))
-         )
+         (rn-width (length (format nil "~D" nr))))
 
     ;; The FORMATs below can be made smarter.
 
-    ;; blank line...
+    ;; blank line, to make STDOUT cleaner in edge cases, this could be optional
     (format out "~%")
 
     ;; Headers
     (format out "~V,@A~:{~V,@S~}~%"
             rn-width #\Space
             (mapcar (lambda (n) (list field-width n)) col-names))
+
+    ;; Should we add a type here?
 
     ;; Rows
     (loop for rn from 0 below (length (first col-data-vs))
@@ -161,7 +164,6 @@ element-type: type  (opt)."
 
 
 (defgeneric ref$ (item ref &rest refs))
-
 
 (defmethod ref$ ((df data-frame) (ref fixnum) &rest refs)
   (let ((e (strand-data (aref (data-frame-columns df) ref))))
@@ -207,6 +209,8 @@ element-type: type  (opt)."
 
 ;;;; SETF methods...
 
+(defgeneric (setf ref$) (v item ref &rest refs))
+
 (defmethod (setf ref$) (v (df data-frame) (ref fixnum) &rest refs)
   (let* ((col (aref (data-frame-columns df) ref))
          (col-type (strand-element-type col))
@@ -220,8 +224,7 @@ element-type: type  (opt)."
            (setf (aref col-data (first refs)) v))
           (t
            (setf (apply #'ref$ (aref col-data (first refs)))
-                 (rest refs)))
-          )))
+                 (rest refs))))))
 
 
 (defmethod (setf ref$) (v (df data-frame) (ref symbol) &rest refs)
