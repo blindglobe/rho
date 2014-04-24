@@ -206,6 +206,12 @@ element-type: type  (opt)."
         (apply #'ref$ e (first rest-indices) (rest rest-indices))
         e)))
 
+;;; if a strand, extract vector and use the vector method...
+(defmethod ref$ ((s strand) (ref fixnum) &rest refs)
+  (ref$ (strand-data s) ref refs))
+
+
+
 
 ;;;; SETF methods...
 
