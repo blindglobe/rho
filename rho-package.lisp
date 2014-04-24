@@ -37,4 +37,11 @@
   (:use :cl
 	:rho))
 
+(defpackage :rho-test
+  (:documentation "package for experiments and use demonstration.")
+  (:use :cl
+	:clunit
+	:rho))
+
+
 ;;;; end of file -- rho-package.lisp --
