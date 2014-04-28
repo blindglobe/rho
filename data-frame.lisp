@@ -15,12 +15,18 @@
                                         element-type)))
   "The Strand Structure.
 
-A 'strand' is a 'named colum' in R."
+A 'strand' is a 'named column' in R.
+
+It consists of a NAME (currently a symbol, but probably better as a string?),
+a vector containing the data (element type and values not preset),
+the element type (where T is the universal type).
+
+You cannot rely on UPGRADED-ARRAY-ELEMENT-TYPE (U-A-E-T in the sequel)
+because most implementations are lazy."
+
   (name nil :type symbol)
-  (data #() :type vector) ; You don't know what element type can go in here.
-  (element-type T) ; You cannot rely on UPGRADED-ARRAY-ELEMENT-TYPE
-                   ; because most implementations are lazy.
-  )
+  (data #() :type vector) 
+  (element-type T))
 
 
 (defun make-strand (name
@@ -28,9 +34,9 @@ A 'strand' is a 'named colum' in R."
                     &optional
                     (element-type (array-element-type data)))
   "Params:
-name:  symbol,
-data vector
-element-type: type  (opt)."
+NAME:         symbol,
+DATA:         vector
+ELEMENT-TYPE: type  (opt)."
   (declare (type symbol name)
            (type vector data))
   (assert (every (lambda (d) (typep d element-type)) data))
@@ -46,7 +52,6 @@ element-type: type  (opt)."
               set
               (coerce (strand-data s) 'list)))))
 
-
 (defgeneric length (x)
   (:method ((x strand))
    (cl:length (strand-data x)))
@@ -55,12 +60,15 @@ element-type: type  (opt)."
   (:method ((x list))
    (cl:list-length x)))
 
-
 (defstruct (data-frame
 	     (:constructor %make-data-frame (columns)))
   (columns #() :type (vector strand)) ; You cannot be more precise than this.
 
-  ;; add hash tables a gogo if you want to address things by 'name'... 
+  ;; MA sez: add hash tables a gogo if you want to address things by
+  ;; 'name'...
+
+  ;; AR sez: so we need possibly a hash table for variables, and a
+  ;; hash table for observations
   )
 
 
@@ -79,7 +87,11 @@ element-type: type  (opt)."
 
  1 - a triple       : (name data element-type)
  2 - a pair         : (name data)
- 3 - a NAMED-COLUMN : (ie. a STRAND)"
+ 3 - a NAMED-COLUMN : (ie. a STRAND).
+
+TODO: allow for generic naming if there is no name given (but this
+could be done at the strand level, as well, so needs to be thought
+over a bit)."
 
   (flet ((process-col-spec (col-spec)
            (etypecase col-spec
