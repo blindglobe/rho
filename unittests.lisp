@@ -1,6 +1,6 @@
 ;;; -*- Mode:Lisp; Syntax:ANSI-Common-Lisp; Coding:utf-8 -*-
 
-;;; Time-stamp: <2014-04-24 17:33:58 tony>
+;;; Time-stamp: <2014-04-28 16:09:13 tony>
 ;;; Creation:   <2014-04-14 11:18:02 tony>
 ;;; File:       unittests.lisp
 ;;; Author:     AJ Rossini <blindglobe@gmail.com>
@@ -16,13 +16,23 @@
 ;;; This organization and structure is new to the 21st Century
 ;;; version..   Think, "21st Century Schizoid Man".
 
+
+;;; To use this as a standalone file, quickload RHO (most likely from
+;;; your local directory) and load the rest of the file.  The
+;;; commented out section at the end is useful for developing new
+;;; unittests as well as processing existing ones.
+
 ;; (ql:quickload :rho)
 
 (in-package :rho-test)
 
+;;; Suites: 
 (defsuite rho ())
+(defsuite rho-strand (rho))
+(defsuite rho-df (rho))
+(defsuite rho-ref$ (rho-strand rho-df))
 
-;;; data (to become fixtures)
+;;; data and data structures (to become fixtures)
 
 (defstruct pointSTR (x 0.0 :type float) (y 0.0 :type float))
 
@@ -32,9 +42,10 @@
   (:documentation "silly point class for illustration"))
 
 
-;;; Tests
 
-(deftest strands-user/def/type (rho)
+
+
+(deffixture rho-strand (@body)
   (let ((strand-struct-without-type
 	 (make-strand 'bzr1-1
 		      (vector (make-pointSTR :x 1.0 :y 2.0)
@@ -56,17 +67,8 @@
 		      (vector (make-instance 'pointCLOS :x 1.0 :y 1.0)
 			      (make-instance 'pointCLOS :x 2.0 :y 2.0)
 			      (make-instance 'pointCLOS :x 3.0 :y 3.0))
-		      'pointCLOS)))
-    
-    (assert-true (= (length (strand-data strand-struct-without-type))
-		    (length (strand-data strand-struct-with-type))
-		    (length (strand-data strand-clos-with-type))
-		    (length (strand-data strand-clos-with-type))
-		    3))))
-
-
-(deftest strands-basic (rho)
-  (let ((strand-string-without-type
+		      'pointCLOS))
+	(strand-string-without-type
 	 (make-strand 'bzr3-1
 		      (vector "one" "two" "three")))
 	(strand-string-with-type
@@ -87,18 +89,11 @@
 	 (make-strand 'bzr5-1
 		      (vector 150.50d0 250.50d0 350.0d0)
 		      'float)))
-    
-    (assert-true (= (length (strand-data strand-string-without-type))
-		    (length (strand-data strand-string-with-type))
-		    (length (strand-data strand-int-without-type))
-		    (length (strand-data strand-int-with-type))
-		    (length (strand-data strand-float-without-type))
-		    (length (strand-data strand-float-with-type))
-		    3))))
+
+    @body))
 
 
-	
-(deftest dataframes (rho)
+(deffixture rho-df (@body)
   (let ((df-1
 	 (make-data-frame '(foo #(1 2 3)) 
 			  '(bar ("a" "s" "d") string) 
@@ -111,8 +106,32 @@
 	 (make-data-frame '(foo #(1 2 3)) 
 			  '(bar ("a" "s" "d") string) 
 			  '(baz (100 102 97) (integer 90 110)))))
+    @body))
 
-    (assert-true (typep (ref$ df-1 2 1) (ref$ (data-frame-column-types df-1) 2)))))
+
+;;; Tests
+
+(deftest strands-user/def/type (rho-strand)
+  (assert-true (= (length (strand-data strand-struct-without-type))
+		  (length (strand-data strand-struct-with-type))
+		  (length (strand-data strand-clos-with-type))
+		  (length (strand-data strand-clos-with-type))
+		  3)))
+
+
+(deftest strands-basic (rho-strand)
+    (assert-true (= (length (strand-data strand-string-without-type))
+		    (length (strand-data strand-string-with-type))
+		    (length (strand-data strand-int-without-type))
+		    (length (strand-data strand-int-with-type))
+		    (length (strand-data strand-float-without-type))
+		    (length (strand-data strand-float-with-type))
+		    3)))
+
+
+	
+(deftest indexing-df (rho-df)
+  (assert-true (typep (ref$ df-1 2 1) (ref$ (data-frame-column-types df-1) 2))))
 
 
 ;;
@@ -156,20 +175,57 @@
 
 |#
 
+(deftest ref$-vector (rho) 
+  (let ((v (vector 0 1 2 3 4)))
+    (loop
+       for i from 0 to 4
+       do (assert-equal (ref$ v i) i))))
+
+
+(deftest ref$-strand (rho) 
+  (let ((s (make-strand 'test-strand (vector 0 1 2 3 4) 'fixnum)))
+    (loop
+       for i from 0 to 4
+       do (assert-equal (ref$ s i) i))
+    (loop
+       for i from 0 to 4
+       do (assert-equal (ref$ 'test-strand i) i))))
+
+
+
+(deftest ref$-dataframe (rho) 
+  (let ((df (vector 0 1 2 3 4)))
+    (loop
+       for i from 0 to 4
+       for j from 0 to 4
+       collect (assert-equal (ref$ df i j) (+ i j)))))
+
+
 #|
+;; what is the best way to check DF indexing?
+    (loop
+       for i from 0 to 4
+       for j from 0 to 4
+       collect (list i j))
 
-
- (deftest ref$ (rho) )
-
-|#	
-
+ (let ((my-list (list 100 200 )))
+  (dotimes (i 4 my-list)
+    (dotimes (j 4 my-list)
+      (append my-list (list i j)))))
+|#
 
 
 ;;; Running tests
 
+#|
+
+
+;;; We don't evaluate these during compile or load time!  Just useful
+;;; for testing new and runnning old tests.
 
 (setf clunit:*clunit-report-format* :default) 
 
+;;; Main call for testing
 (run-suite 'rho
 	   :use-debugger NIL
 	   :report-progress T)
@@ -178,7 +234,7 @@
 	  :use-debugger T
 	  :report-progress T)
 
-(run-test 'strands-basic
+(run-test 'ref$-strand
 	  :use-debugger T
 	  :report-progress T)
 
@@ -189,5 +245,7 @@
 
 (run-suite 'rho :report-progress nil)
 (rerun-failed-tests :use-debugger NIL)
+
+|#
 
 ;;; End of File
