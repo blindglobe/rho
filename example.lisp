@@ -27,33 +27,54 @@
 
 (pprint-data-frame df) 
 
-(setf (ref$ df 'bar 2) 42) 
+(equal (list (ref$ df 'bar 0)
+	     (ref$ df 'bar 1)
+	     (ref$ df 'bar 2))
+       (list "a" "s" "d"))
 
-(data-frame-column-types df) 
+(equal (list (ref$ df 1 0)
+	     (ref$ df 1 1)
+	     (ref$ df 1 2))
+       (list "a" "s" "d"))
 
-(setf (ref$ df 'bar 2) "Works!") 
 
-(pprint-data-frame df) 
+(data-frame-column-types df)
+(data-frame-column-names df)
+(data-frame-as-lisp-array df)
 
-(typep (ref$ df 2 1) (ref$ (data-frame-column-types df) 2)) 
+;; Error, 42 is not a string
+(setf (ref$ df 'bar 2) 42)
+
+;; works, since that is a string
+(setf (ref$ df 'bar 2) "Works!")
+
+(typep (ref$ df 2 1) (ref$ (data-frame-column-types df) 2))
 
 df
 
 
-;;; example of making a variable of a defstruct'd type.
+
+
+;;; simplee but needed example of making a variable of a particular
+;;; user-spec'd type.
 
 (defstruct pointSTR (x 0.0 :type float) (y 0.0 :type float))
 (defparameter p1 (make-pointSTR :x 2.2 :y 2.3))
 p1
 
+
+
 (defclass pointCLOS ()
   ((x :type float :initarg :x :initform 0.1)
    (y :type float :initarg :y :initform 0.2))
   (:documentation "silly point class for illustration"))
-
 (defparameter p2 (make-instance 'pointCLOS))
+(defparameter p2a (make-instance 'pointCLOS :x 1.0 :y 2.0))
 p2
+p2a
 (list (slot-value p2 'x) (slot-value p2 'y))
+(list (slot-value p2a 'x) (slot-value p2a 'y))
+
 
 
 
@@ -65,20 +86,15 @@ p2
 		   (make-strand 'bzr
 				(vector (make-pointSTR :x 1.0 :y 2.0)
 					(make-pointSTR :x 2.0 :y 2.0)
-					(make-pointSTR :x 3.0 :y 2.0)))))
+					(make-pointSTR :x 3.0 :y 2.0))
+				'pointSTR)))
+
 
 
 df-2a
 (pprint-data-frame df-2a)
 
 (data-frame-column-types df-2a)
-
-
-
-
-
-
-
 
 ;; and we want 
 
@@ -89,8 +105,8 @@ df-2a
 
 
 (vector (make-pointSTR :x 1.0 :y 2.0)
-   (make-pointSTR :x 2.0 :y 2.0)
-   (make-pointSTR :x 3.0 :y 2.0))
+	(make-pointSTR :x 2.0 :y 2.0)
+	(make-pointSTR :x 3.0 :y 2.0))
 
 
 (defparameter df-2
