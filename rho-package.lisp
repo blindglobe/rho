@@ -4,7 +4,10 @@
 
 ;;;; See the file COPYING for licencing and copyright information.
 
-(defpackage "IT.UNIMIB.DISCO.MA.RHO" (:use "CL")
+(in-package :cl-user)
+
+(defpackage "IT.UNIMIB.DISCO.MA.RHO"
+  (:use "CL")
   (:nicknames "RHO")
 
   (:export
@@ -20,9 +23,11 @@
    "DATA-FRAME-COLUMN-NAMES"
    "DATA-FRAME-COLUMN-TYPES"
    "DATA-FRAME-AS-LISP-ARRAY"
-   :pprint-data-frame
+   pprint-data-frame
 
    "REF$"
+
+   ;;  lengthv ;; maybe, maybe not
    ))
 
 
@@ -32,12 +37,13 @@
 	:rho))
 
 (defpackage :rho-test
-  (:documentation "package for experiments and use demonstration.")
+  (:documentation "unittests are run in this package.")
   (:use :cl
 	:clunit
-	:rho)
+	:rho))
 
   ;; TODO:(?) export from this package, a function to run unittests?
-  )
+
+
 
 ;;;; end of file -- rho-package.lisp --

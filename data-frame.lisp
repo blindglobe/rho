@@ -6,8 +6,9 @@
 
 (in-package "RHO")
 
-(eval-when (:load-toplevel :compile-toplevel :execute)
-  (shadow '(cl:length)))
+;;(eval-when (:load-toplevel :compile-toplevel :execute)
+;;  (shadow '(cl:length)))
+;; renamed length to lengthv
 
 (defstruct (strand
             (:constructor %make-strand (name
@@ -52,7 +53,7 @@ ELEMENT-TYPE: type  (opt)."
               set
               (coerce (strand-data s) 'list)))))
 
-(defgeneric length (x)
+(defgeneric lengthv (x)
   (:method ((x strand))
    (cl:length (strand-data x)))
   (:method ((x vector))
@@ -76,7 +77,7 @@ ELEMENT-TYPE: type  (opt)."
   (let ((cs (data-frame-columns df)))
     (print-unreadable-object (df stream)
       (format stream "DATA-FRAME [~D]~{ ~S~}"
-              (length cs)
+              (lengthv cs)
               (coerce cs 'list)))))
 
 
@@ -109,7 +110,7 @@ over a bit)."
                                      (t et))))
                        (make-strand
                         name
-                        (map-into (make-array (length data)
+                        (map-into (make-array (lengthv data)
                                               :element-type et
                                               ;; Note that the above is
                                               ;; useless most of the
@@ -125,7 +126,7 @@ over a bit)."
     (loop for col-spec in cols-specs
           collect (process-col-spec col-spec) into cols
           finally
-          (assert (apply #'= (mapcar #'length cols))) ; Ok. This is limiting!
+          (assert (apply #'= (mapcar #'lengthv cols))) ; Ok. This is limiting!
           (return (%make-data-frame (coerce cols '(vector strand)))))))
 
 
@@ -136,8 +137,8 @@ over a bit)."
          (col-names (map 'list #'strand-name cols))
          (col-data-vs (map 'list #'strand-data cols))
          (field-width 10) ; Fixed FTTB.
-         (nr (length (first col-data-vs)))
-         (rn-width (length (format nil "~D" nr))))
+         (nr (lengthv (first col-data-vs)))
+         (rn-width (lengthv (format nil "~D" nr))))
 
     ;; The FORMATs below can be made smarter.
 
@@ -152,7 +153,7 @@ over a bit)."
     ;; Should we add a type here?
 
     ;; Rows
-    (loop for rn from 0 below (length (first col-data-vs))
+    (loop for rn from 0 below (lengthv (first col-data-vs))
           for row = (mapcar (lambda (c) (aref c rn)) col-data-vs)
           do (format out "~V,@A~:{~V,@S~}~%"
                      rn-width rn
@@ -171,7 +172,7 @@ over a bit)."
 
 (defun data-frame-as-lisp-array (df)
   (let ((cols (map 'list #'strand-data (data-frame-columns df))))
-    (make-array (list (length (first cols)) (length cols))
+    (make-array (list (lengthv (first cols)) (lengthv cols))
                 :initial-contents cols)))
 
 
@@ -209,7 +210,7 @@ over a bit)."
 
 (defmethod ref$ ((a array) (ref fixnum) &rest refs)
   (let* ((ar (array-rank a))
-         (rl (length refs))
+         (rl (lengthv refs))
          (next-indices (butlast refs (- rl (1- ar))))
          (rest-indices (nthcdr (1- ar) refs))
          (e (apply #'aref a ref next-indices))
@@ -237,7 +238,7 @@ over a bit)."
     (cond ((null refs)
            (assert (typep v `(vector ,col-type)))
            (setf (strand-data col) v))
-          ((= (length refs) 1)
+          ((= (lengthv refs) 1)
            (assert (typep v col-type))
            (setf (aref col-data (first refs)) v))
           (t
@@ -254,7 +255,7 @@ over a bit)."
     (cond ((null refs)
            (assert (typep v `(vector ,col-type)))
            (setf (strand-data col) v))
-          ((= (length refs) 1)
+          ((= (lengthv refs) 1)
            (assert (typep v col-type))
            (setf (aref col-data (first refs)) v))
           (t
