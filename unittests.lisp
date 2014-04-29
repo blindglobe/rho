@@ -1,6 +1,6 @@
 ;;; -*- Mode:Lisp; Syntax:ANSI-Common-Lisp; Coding:utf-8 -*-
 
-;;; Time-stamp: <2014-04-29 11:13:52 tony>
+;;; Time-stamp: <2014-04-29 13:31:16 tony>
 ;;; Creation:   <2014-04-14 11:18:02 tony>
 ;;; File:       unittests.lisp
 ;;; Author:     AJ Rossini <blindglobe@gmail.com>
@@ -133,14 +133,13 @@
 
 	
 (deftest indexing-df (rho-df)
+  ;; (assert-true (every (lambda (d) (typep d element-type)) data))
   (assert-true (typep (ref$ df-1 2 1) (ref$ (data-frame-column-types df-1) 2))))
 
 
-;;
-;;	(assert-true (typep (ref$ df-1 2 2) (ref$ (data-frame-column-types df-1) 3)))
-;;	(assert-true (typep (ref$ df-1 1 1) (ref$ (data-frame-column-types df-1) 1)))
-;;    (assert-equal (data-frame-column-types df2) (list of proper types)
-
+;; (assert-true (typep (ref$ df-1 2 2) (ref$ (data-frame-column-types df-1) 3)))
+;; (assert-true (typep (ref$ df-1 1 1) (ref$ (data-frame-column-types df-1) 1)))
+;; (assert-equal (data-frame-column-types df2) (list of proper types)
 
 
 #|
@@ -195,7 +194,7 @@
 
 
 
-(deftest ref$-dataframe (rho-dataframe rho-ref$) 
+(deftest ref$-dataframe (rho-df rho-ref$) 
   (let ((df (vector 0 1 2 3 4)))
     (loop
        for i from 0 to 4
