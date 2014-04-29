@@ -1,6 +1,6 @@
 ;;; -*- Mode:Lisp; Syntax:ANSI-Common-Lisp; Coding:utf-8 -*-
 
-;;; Time-stamp: <2014-04-29 13:31:16 tony>
+;;; Time-stamp: <2014-04-29 14:06:32 tony>
 ;;; Creation:   <2014-04-14 11:18:02 tony>
 ;;; File:       unittests.lisp
 ;;; Author:     AJ Rossini <blindglobe@gmail.com>
@@ -228,24 +228,24 @@
 
 ;;; Main call for testing
  (run-suite 'rho
-:use-debugger NIL
-	   :report-progress T)
+           :use-debugger NIL
+	   :report-progress T)q
 
-(run-test 'strands-user/def/type
+ (run-test 'strands-user/def/type
 	  :use-debugger T
 	  :report-progress T)
 
-(run-test 'ref$-strand
+ (run-test 'ref$-strand
 	  :use-debugger T
 	  :report-progress T)
 
-(run-test 'dataframes
+ (run-test 'dataframes
 	  :use-debugger T
 	  :report-progress T)
 
 
-(run-suite 'rho :report-progress nil)
-(rerun-failed-tests :use-debugger NIL)
+ (run-suite 'rho :report-progress nil)
+ (rerun-failed-tests :use-debugger NIL)
 
 |#
 

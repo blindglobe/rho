@@ -8,7 +8,7 @@
 
 ;;(eval-when (:load-toplevel :compile-toplevel :execute)
 ;;  (shadow '(cl:length)))
-;; renamed length to lengthv
+;; renamed length to lengthv, eliminating the above
 
 (defstruct (strand
             (:constructor %make-strand (name
@@ -174,6 +174,9 @@ over a bit)."
   (let ((cols (map 'list #'strand-data (data-frame-columns df))))
     (make-array (list (lengthv (first cols)) (lengthv cols))
                 :initial-contents cols)))
+
+
+;;; strand and df element accessor:
 
 
 (defgeneric ref$ (item ref &rest refs))

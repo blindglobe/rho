@@ -18,14 +18,13 @@
    "MAKE-STRAND"
    strand-data       ; exported for debugging only, I think.  Normally
 		     ; ref$ should be the only means of accessing data
-   ;; Add other...
 
    "DATA-FRAME-COLUMN-NAMES"
    "DATA-FRAME-COLUMN-TYPES"
    "DATA-FRAME-AS-LISP-ARRAY"
    pprint-data-frame
 
-   "REF$"
+   ref$
 
    ;;  lengthv ;; maybe, maybe not
    ))
