@@ -1,6 +1,6 @@
 ;;; -*- Mode:Lisp; Syntax:ANSI-Common-Lisp; Coding:utf-8 -*-
 
-;;; Time-stamp: <2014-04-28 16:09:13 tony>
+;;; Time-stamp: <2014-04-29 11:13:52 tony>
 ;;; Creation:   <2014-04-14 11:18:02 tony>
 ;;; File:       unittests.lisp
 ;;; Author:     AJ Rossini <blindglobe@gmail.com>
@@ -27,12 +27,13 @@
 (in-package :rho-test)
 
 ;;; Suites: 
+
 (defsuite rho ())
 (defsuite rho-strand (rho))
 (defsuite rho-df (rho))
 (defsuite rho-ref$ (rho-strand rho-df))
 
-;;; data and data structures (to become fixtures)
+;;; fixtures, including data and data structures
 
 (defstruct pointSTR (x 0.0 :type float) (y 0.0 :type float))
 
@@ -40,10 +41,6 @@
   ((x :type float :initarg :x :initform 0.1)
    (y :type float :initarg :y :initform 0.2))
   (:documentation "silly point class for illustration"))
-
-
-
-
 
 (deffixture rho-strand (@body)
   (let ((strand-struct-without-type
@@ -105,7 +102,12 @@
 	(df-2
 	 (make-data-frame '(foo #(1 2 3)) 
 			  '(bar ("a" "s" "d") string) 
-			  '(baz (100 102 97) (integer 90 110)))))
+			  '(baz (100 102 97) (integer 90 110))))
+	(df-3
+	 (make-data-frame '(v0 ((0 0) (0 1) (0 2) (0 3)) list)
+			  '(v1 ((1 0) (1 1) (1 2) (1 3)) list)
+			  '(v2 ((2 0) (2 1) (2 2) (2 3)) list))))
+
     @body))
 
 
@@ -175,14 +177,14 @@
 
 |#
 
-(deftest ref$-vector (rho) 
+(deftest ref$-vector (rho rho-ref$) 
   (let ((v (vector 0 1 2 3 4)))
     (loop
        for i from 0 to 4
        do (assert-equal (ref$ v i) i))))
 
 
-(deftest ref$-strand (rho) 
+(deftest ref$-strand (rho-strand rho-ref$) 
   (let ((s (make-strand 'test-strand (vector 0 1 2 3 4) 'fixnum)))
     (loop
        for i from 0 to 4
@@ -193,12 +195,12 @@
 
 
 
-(deftest ref$-dataframe (rho) 
+(deftest ref$-dataframe (rho-dataframe rho-ref$) 
   (let ((df (vector 0 1 2 3 4)))
     (loop
        for i from 0 to 4
        for j from 0 to 4
-       collect (assert-equal (ref$ df i j) (+ i j)))))
+       collect (assert-equal (ref$ df i j) (list i j)))))
 
 
 #|
@@ -223,11 +225,11 @@
 ;;; We don't evaluate these during compile or load time!  Just useful
 ;;; for testing new and runnning old tests.
 
-(setf clunit:*clunit-report-format* :default) 
+ (setf clunit:*clunit-report-format* :default) 
 
 ;;; Main call for testing
-(run-suite 'rho
-	   :use-debugger NIL
+ (run-suite 'rho
+:use-debugger NIL
 	   :report-progress T)
 
 (run-test 'strands-user/def/type
