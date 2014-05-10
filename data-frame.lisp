@@ -4,11 +4,12 @@
 ;;;;
 ;;;; See the file COPYING for licencing and copyright information.
 
-(in-package "RHO")
+(in-package :rho)
 
 ;;(eval-when (:load-toplevel :compile-toplevel :execute)
 ;;  (shadow '(cl:length)))
-;; renamed length to lengthv, eliminating the above
+
+;; renamed length to lengthv, eliminating the shadow given above.
 
 (defstruct (strand
             (:constructor %make-strand (name
@@ -28,7 +29,6 @@ because most implementations are lazy."
   (name nil :type symbol)
   (data #() :type vector) 
   (element-type T))
-
 
 (defun make-strand (name
                     data
@@ -63,14 +63,13 @@ ELEMENT-TYPE: type  (opt)."
 
 (defstruct (data-frame
 	     (:constructor %make-data-frame (columns)))
-  (columns #() :type (vector strand)) ; You cannot be more precise than this.
+  "vector of strands.
 
-  ;; MA sez: add hash tables a gogo if you want to address things by
-  ;; 'name'...
+MA sez: add hash tables a gogo if you want to address things by 'name'...
 
-  ;; AR sez: so we need possibly a hash table for variables, and a
-  ;; hash table for observations
-  )
+COLUMNS: untyped vector. You cannot be more precise than this.
+"
+  (columns #() :type (vector strand)))
 
 
 (defmethod print-object ((df data-frame) stream)
@@ -177,7 +176,6 @@ over a bit)."
 
 
 ;;; strand and df element accessor:
-
 
 (defgeneric ref$ (item ref &rest refs))
 
