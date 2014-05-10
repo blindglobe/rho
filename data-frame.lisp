@@ -224,7 +224,7 @@ over a bit)."
 
 ;;; if a strand, extract vector and use the vector method...
 (defmethod ref$ ((s strand) (ref fixnum) &rest refs)
-  (ref$ (strand-data s) ref refs))
+  (ref$ (strand-data s) ref)) ;; sequences and strands MUST have only 1 index
 
 
 
