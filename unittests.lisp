@@ -1,6 +1,6 @@
 ;;; -*- Mode:Lisp; Syntax:ANSI-Common-Lisp; Coding:utf-8 -*-
 
-;;; Time-stamp: <2014-04-29 14:06:32 tony>
+;;; Time-stamp: <2014-05-10 14:56:39 tony>
 ;;; Creation:   <2014-04-14 11:18:02 tony>
 ;;; File:       unittests.lisp
 ;;; Author:     AJ Rossini <blindglobe@gmail.com>
@@ -31,9 +31,9 @@
 (defsuite rho ())
 (defsuite rho-strand (rho))
 (defsuite rho-df (rho))
-(defsuite rho-ref$ (rho-strand rho-df))
 
-;;; fixtures, including data and data structures
+;;; fixtures, including data and data structures.
+;;; data structures are toy versions, and should not be exported. 
 
 (defstruct pointSTR (x 0.0 :type float) (y 0.0 :type float))
 
@@ -176,30 +176,38 @@
 
 |#
 
-(deftest ref$-vector (rho rho-ref$) 
+(deftest ref$-vector (rho) 
   (let ((v (vector 0 1 2 3 4)))
     (loop
        for i from 0 to 4
        do (assert-equal (ref$ v i) i))))
 
 
-(deftest ref$-strand (rho-strand rho-ref$) 
+(deftest ref$-strand (rho-strand) 
   (let ((s (make-strand 'test-strand (vector 0 1 2 3 4) 'fixnum)))
     (loop
        for i from 0 to 4
-       do (assert-equal (ref$ s i) i))
+       do (assert-equal (ref$ s i) i))))
+
+#|
+
+;; it would be good if we could ref the strand by name, but this means
+;; having a few points to check.
+
     (loop
        for i from 0 to 4
        do (assert-equal (ref$ 'test-strand i) i))))
+|#
 
 
 
-(deftest ref$-dataframe (rho-df rho-ref$) 
-  (let ((df (vector 0 1 2 3 4)))
-    (loop
-       for i from 0 to 4
-       for j from 0 to 4
-       collect (assert-equal (ref$ df i j) (list i j)))))
+(deftest ref$-dataframe (rho-df)
+  (assert-equal (ref$ df-1 0 0) 1)
+  (assert-equal (ref$ df-1 1 0) "a")
+  (assert-equal (ref$ df-1 2 0) 100)
+  (assert-equalp (ref$ df-1 3 0) (make-pointSTR :x 1.0 :y 2.0)) )
+
+
 
 
 #|
@@ -229,7 +237,7 @@
 ;;; Main call for testing
  (run-suite 'rho
            :use-debugger NIL
-	   :report-progress T)q
+	   :report-progress T) 
 
  (run-test 'strands-user/def/type
 	  :use-debugger T
