@@ -54,6 +54,23 @@ df
 
 
 
+#|
+  (let ((s (make-strand 'test-strand (vector 0 1 2 3 4) 'fixnum)))
+    (ref$ s 1))
+      
+  (let ((s (make-strand 'test-strand (vector 0 1 2 3 4) 'fixnum)))
+    (loop
+       for i from 0 to 4
+       do (assert-equal (ref$ s i) i)))
+
+
+  (let ((s (make-strand 'test-strand (vector 0 1 2 3 4) 'fixnum)))
+    (loop
+       for i from 0 to 4
+       do (assert-equal (ref$ 'test-strand i) i)))
+|#
+
+
 
 ;;; simplee but needed example of making a variable of a particular
 ;;; user-spec'd type.
