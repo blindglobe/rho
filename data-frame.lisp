@@ -222,18 +222,6 @@ over a bit)."
         (apply #'ref$ e refs)
         e)))
 
-
-(defmethod ref$ ((a array) (ref fixnum) &rest refs)
-  (let* ((ar (array-rank a))
-         (rl (lengthv refs))
-         (next-indices (butlast refs (- rl (1- ar))))
-         (rest-indices (nthcdr (1- ar) refs))
-         (e (apply #'aref a ref next-indices))
-         )
-    (if rest-indices
-        (apply #'ref$ e (first rest-indices) (rest rest-indices))
-        e)))
-
 ;;; if a strand, extract vector and use the vector method...
 (defmethod ref$ ((s strand) (ref fixnum) &rest refs)
   (ref$ (strand-data s) ref refs))
