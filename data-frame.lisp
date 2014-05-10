@@ -197,6 +197,18 @@ over a bit)."
         e)))
 
 
+(defmethod ref$ ((a array) (ref fixnum) &rest refs)
+  (let* ((ar (array-rank a))
+         (rl (lengthv refs))
+         (next-indices (butlast refs (- rl (1- ar))))
+         (rest-indices (nthcdr (1- ar) refs))
+         (e (apply #'aref a ref next-indices))
+         )
+    (if rest-indices
+        (apply #'ref$ e (first rest-indices) (rest rest-indices))
+        e)))
+
+
 (defmethod ref$ ((v vector) (ref fixnum) &rest refs)
   (let ((e (aref v ref)))
     (if refs
