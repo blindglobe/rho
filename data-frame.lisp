@@ -276,4 +276,38 @@ over a bit)."
 
 
 
+
+;;; To find a particular vector/strand (mix between R and LispStat)
+
+(defun find-all-strands-and-dataframes (&key (package *package*))
+  "Bad.  "
+  (let ((lst (list 'a)))
+    (do-symbols (s package) 
+      (if (typep s 'strand) 
+	  (push s lst))
+      (if (typep s 'data-frame)
+	  (push (data-frame-column-names s) lst)))
+    lst))
+
+
+#| 
+
+ (defparameter s1 (make-strand 'bzr #(1 2 3) 'fixnum))
+ s1
+
+  (let ((lst ()))
+    (do-symbols (s package) 
+      (if (typep s 'strand) 
+
+
+ (find-all-strands-and-dataframes :package *package*)
+ (find-all-strands-and-dataframes)
+
+
+|#
+
+
+
+	  
+
 ;;;; end of file -- data-frame.lisp --
