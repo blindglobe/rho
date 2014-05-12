@@ -228,15 +228,14 @@ over a bit)."
 
 
 
-;;;; SETF methods...
+;;;; Setf methods...
 
 (defgeneric (setf ref$) (v item ref &rest refs))
 
 (defmethod (setf ref$) (v (df data-frame) (ref fixnum) &rest refs)
   (let* ((col (aref (data-frame-columns df) ref))
          (col-type (strand-element-type col))
-         (col-data (strand-data col))
-        )
+         (col-data (strand-data col)))
     (cond ((null refs)
            (assert (typep v `(vector ,col-type)))
            (setf (strand-data col) v))
@@ -264,11 +263,23 @@ over a bit)."
            (setf (apply #'ref$ (aref col-data (first refs)))
                  (rest refs))))))
 
+(defmethod (setf ref$) (v (a array) (ref fixnum) &rest refs)
+  (error "implement this"))
+
+
 
 (defmethod (setf ref$) (v (vec vector) (ref fixnum) &rest refs)
   (if (null refs)
       (setf (aref vec ref) v)
       (setf (apply #'ref$ (aref vec ref) refs) v)))
+
+(defmethod (setf ref$) (v (seq sequence) (ref fixnum) &rest refs)
+  (error "implement this")  )
+
+
+(defmethod (setf ref$) (v (str strand) (ref fixnum) &rest refs)
+  (error "implement this")  )
+
 
 ;;; You know the drill for the other (SETF REF$)
 ;;; ...
