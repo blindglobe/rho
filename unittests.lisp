@@ -1,6 +1,6 @@
 ;;; -*- Mode:Lisp; Syntax:ANSI-Common-Lisp; Coding:utf-8 -*-
 
-;;; Time-stamp: <2014-05-10 14:56:39 tony>
+;;; Time-stamp: <2014-05-12 14:51:03 tony>
 ;;; Creation:   <2014-04-14 11:18:02 tony>
 ;;; File:       unittests.lisp
 ;;; Author:     AJ Rossini <blindglobe@gmail.com>
@@ -98,7 +98,10 @@
 			  (make-strand 'bzr
 				       (vector (make-pointSTR :x 1.0 :y 2.0)
 					       (make-pointSTR :x 2.0 :y 2.0)
-					       (make-pointSTR :x 3.0 :y 2.0)))))
+					       (make-pointSTR :x 3.0 :y 2.0))
+				       'pointSTR)
+			  '(foo2 #(1 2 3) fixnum)))
+
 	(df-2
 	 (make-data-frame '(foo #(1 2 3)) 
 			  '(bar ("a" "s" "d") string) 
@@ -135,6 +138,40 @@
 (deftest indexing-df (rho-df)
   ;; (assert-true (every (lambda (d) (typep d element-type)) data))
   (assert-true (typep (ref$ df-1 2 1) (ref$ (data-frame-column-types df-1) 2))))
+
+
+(deftest access-df-3 (rho-df)
+  (assert-true (equal (ref$ df-3 'v0 1) (list 0 1)))
+  (assert-true (equal (ref$ df-3 'v1 2) (list 1 2)))
+  (assert-true (equal (ref$ df-3 'v2 2) (list 2 2)))
+  (assert-true (equal (ref$ df-3 0 1) (list 0 1)))
+  (assert-true (equal (ref$ df-3 1 2) (list 1 2)))
+  (assert-true (equal (ref$ df-3 2 2) (list 2 2))))
+
+(deftest access-df-2 (rho-df)
+  (assert-true  (setf (ref$ df-3 'v0 1) (list 50 50)))
+  (assert-condition simple-error (eval (setf (ref$ df-3 'v0 1) 1))))
+
+(deftest access-df-4 (rho-df)
+
+  (assert-true
+      (setf (ref$ df-1 'foo 1) 1))
+  (assert-true
+      (setf (ref$ df-1 'foo 1) "a"))
+
+  (assert-true
+      (setf (ref$ df-1 'foo2 1) 1))
+  (assert-condition simple-error
+      (setf (ref$ df-1 'foo2 1) "a"))
+
+  (assert-true
+      (setf (ref$ df-1 'bar 1) "b"))
+  (assert-condition simple-error
+      (eval (setf (ref$ df-1 'bar 1) 'bc)))
+
+  (assert-true  (setf (ref$ df-1 'bzr 1) (make-pointSTR :x 50.0 :y 50.0)))
+  (assert-condition simple-error (setf (ref$ df-1 'bzr 1) 500)))
+
 
 
 ;; (assert-true (typep (ref$ df-1 2 2) (ref$ (data-frame-column-types df-1) 3)))
@@ -234,12 +271,16 @@
 
  (setf clunit:*clunit-report-format* :default) 
 
+ (ql:quickload :rho)
+
+ (in-package :rho-test)
+
 ;;; Main call for testing
  (run-suite 'rho
-           :use-debugger NIL
-	   :report-progress T) 
+       :use-debugger NIL
+       :report-progress T)y
 
- (run-test 'strands-user/def/type
+ (run-test 'access-df-4
 	  :use-debugger T
 	  :report-progress T)
 
