@@ -1,6 +1,6 @@
 ;;; -*- Mode:Lisp; Syntax:ANSI-Common-Lisp; Coding:utf-8 -*-
 
-;;; Time-stamp: <2014-05-12 14:51:03 tony>
+;;; Time-stamp: <2014-05-12 14:54:27 tony>
 ;;; Creation:   <2014-04-14 11:18:02 tony>
 ;;; File:       unittests.lisp
 ;;; Author:     AJ Rossini <blindglobe@gmail.com>
@@ -278,7 +278,7 @@
 ;;; Main call for testing
  (run-suite 'rho
        :use-debugger NIL
-       :report-progress T)y
+       :report-progress T)
 
  (run-test 'access-df-4
 	  :use-debugger T
