@@ -19,9 +19,10 @@
 
 A 'strand' is a 'named column' in R.
 
-It consists of a NAME (currently a symbol, but probably better as a string?),
-a vector containing the data (element type and values not preset),
-the element type (where T is the universal type).
+It consists of:
+1. a NAME (currently a symbol, but probably better as a string?),
+2. DATA, a vector containing the data (element type and values not preset),
+3. the ELEMENT-TYPE (where T is the universal type).
 
 You cannot rely on UPGRADED-ARRAY-ELEMENT-TYPE (U-A-E-T in the sequel)
 because most implementations are lazy."
