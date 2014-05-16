@@ -64,11 +64,12 @@ ELEMENT-TYPE: type  (opt)."
 
 (defstruct (data-frame
 	     (:constructor %make-data-frame (columns)))
-  "vector of strands.
+  "Data model: a vector of strands.
 
 MA sez: add hash tables a gogo if you want to address things by 'name'...
 
-COLUMNS: untyped vector. You cannot be more precise than this.
+COLUMNS: an vector consisting of vectors and strands.  You cannot be
+more precise than this.
 "
   (columns #() :type (vector strand)))
 
@@ -129,14 +130,27 @@ over a bit)."
           (assert (apply #'= (mapcar #'lengthv cols))) ; Ok. This is limiting!
           (return (%make-data-frame (coerce cols '(vector strand)))))))
 
+;; MA's comment regarding requiring equal length columns for variables
+;; (vectors|strands) in a variable is a mis-nomer.  At this point, we
+;; want to ensure that rows refer to the same observation.  It is just
+;; that if data is missing, we need to include a data structure for
+;; missingness.  However, that challenge should be handled external to
+;; this, not internal to this.  What we might want (related) is a
+;; means of having a key to identify variables from the same observation
+;; thereby not necessarily allowing a mixture of variable lengths.  
+
+;; The question is not whether such a structure is useful, it is more
+;; whether that would be more efficient than the direct assumption
+;; (ie. would the additional indirection be valuable?)
 
 (defun pprint-data-frame (df &optional (out *standard-output*))
   ;; This can be installed with PRINT-OBJECT and extended etc etc
 
   (let* ((cols (data-frame-columns df))
          (col-names (map 'list #'strand-name cols))
+	 (col-types (map 'list #'strand-element-type cols))
          (col-data-vs (map 'list #'strand-data cols))
-         (field-width 10) ; Fixed FTTB.
+         (field-width 20) ; Fixed FTTB.  Originally 10.
          (nr (lengthv (first col-data-vs)))
          (rn-width (lengthv (format nil "~D" nr))))
 
@@ -145,12 +159,15 @@ over a bit)."
     ;; blank line, to make STDOUT cleaner in edge cases, this could be optional
     (format out "~%")
 
-    ;; Headers
+    ;; Variable names
     (format out "~V,@A~:{~V,@S~}~%"
             rn-width #\Space
             (mapcar (lambda (n) (list field-width n)) col-names))
 
-    ;; Should we add a type here?
+    ;; Variable types: could be optional
+    (format out "~V,@A~:{~V,@S~}~%"
+            rn-width #\Space
+            (mapcar (lambda (n) (list field-width n)) col-types))
 
     ;; Rows
     (loop for rn from 0 below (lengthv (first col-data-vs))
@@ -264,7 +281,7 @@ over a bit)."
                  (rest refs))))))
 
 (defmethod (setf ref$) (v (a array) (ref fixnum) &rest refs)
-  (error "implement this"))
+  (error "implement ARRAY setting, called with ~S ~S" ref refs))
 
 
 
@@ -274,11 +291,10 @@ over a bit)."
       (setf (apply #'ref$ (aref vec ref) refs) v)))
 
 (defmethod (setf ref$) (v (seq sequence) (ref fixnum) &rest refs)
-  (error "implement this")  )
-
+  (error "implement SEQUENCE setting, called with ~S ~S" ref refs))
 
 (defmethod (setf ref$) (v (str strand) (ref fixnum) &rest refs)
-  (error "implement this")  )
+  (error "implement STRAND setting, called with ~S ~S" ref refs))
 
 
 ;;; You know the drill for the other (SETF REF$)
@@ -290,14 +306,19 @@ over a bit)."
 ;;; To find a particular vector/strand (mix between R and LispStat)
 
 (defun find-all-strands-and-dataframes (&key (package *package*))
-  "Bad.  "
-  (let ((lst (list 'a)))
+  "Bad.  What I want is a function that finds all variables in the
+PACKAGE of type STRAND or DATA-FRAME, for use in finding things.  One
+idea was to cycle through all symbols and record those which are of
+the particular type."
+  (let ((lst ()))
     (do-symbols (s package) 
-      (if (typep s 'strand) 
+      (if (typep s 'STRAND) 
 	  (push s lst))
-      (if (typep s 'data-frame)
+      (if (typep s 'DATA-FRAME)
 	  (push (data-frame-column-names s) lst)))
     lst))
+
+
 
 
 #| 
@@ -305,10 +326,10 @@ over a bit)."
  (defparameter s1 (make-strand 'bzr #(1 2 3) 'fixnum))
  s1
 
-  (let ((lst ()))
-    (do-symbols (s package) 
-      (if (typep s 'strand) 
 
+ (loop for sym in (find-all-symbols-in-package *package*)
+       if (typep sym 'STRAND) collect sym into strand-list
+       finally (return strand-list))
 
  (find-all-strands-and-dataframes :package *package*)
  (find-all-strands-and-dataframes)
