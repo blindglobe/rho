@@ -15,6 +15,8 @@
    "MAKE-DATA-FRAME"
    ;; Add other...
 
+
+   strand
    "MAKE-STRAND"
    strand-data       ; exported for debugging only, I think.  Normally
 		     ; ref$ should be the only means of accessing data
