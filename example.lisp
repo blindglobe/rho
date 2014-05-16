@@ -96,6 +96,8 @@ p2a
 
 
 
+
+
 (defparameter df-2a
   (make-data-frame '(foo #(1 2 3)) 
 		   '(bar ("a" "s" "d") string) 
@@ -145,8 +147,8 @@ df-2a
 |#
 		   '(bzr3
 		     (vector (make-pointSTR :x 1.0 :y 2.0)
-		       (make-pointSTR :x 2.0 :y 2.0)
-		       (make-pointSTR :x 3.0 :y 2.0))
+		      (make-pointSTR :x 2.0 :y 2.0)
+		      (make-pointSTR :x 3.0 :y 2.0))
 		     pointSTR)
 
 #|  These seem to fail, but as we have an example solution above, no issues...
@@ -169,11 +171,23 @@ df-2a
 
 ;;; but above has type T when we'd like type POINTSTR.
 ;;; so we try to specify, but it currently fails.
-(make-strand 'bzr
-	     (vector (make-pointSTR :x 1.0 :y 2.0)
-		     (make-pointSTR :x 2.0 :y 2.0)
-		     (make-pointSTR :x 3.0 :y 2.0))
-	     'pointSTR)
+(defparameter my/strand (make-strand 'bzr
+				     (vector (make-pointSTR :x 1.0 :y 2.0)
+					     (make-pointSTR :x 2.0 :y 2.0)
+					     (make-pointSTR :x 3.0 :y 2.0))
+				     'pointSTR))
+
+(typep my/strand 'STRAND)
+(typep my/strand 'STRING)
+
+
+(let ((lst ()))
+  (do-symbols (zz *package*) 
+    (print zz)
+    (if (typep zz 'STRAND) (print "TRUE") (print "FALSE"))
+    ))
+
+
 
 ;;; Typing examples for the naive.
 
