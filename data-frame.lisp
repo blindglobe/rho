@@ -6,11 +6,6 @@
 
 (in-package :rho)
 
-;;(eval-when (:load-toplevel :compile-toplevel :execute)
-;;  (shadow '(cl:length)))
-
-;; renamed length to lengthv, eliminating the shadow given above.
-
 (defstruct (strand
             (:constructor %make-strand (name
                                         data
