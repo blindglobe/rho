@@ -305,37 +305,73 @@ over a bit)."
 
 ;;; To find a particular vector/strand (mix between R and LispStat)
 
-(defun find-all-strands-and-dataframes (&key (package *package*))
+
+;;; Pascal clarifies for me:
+
+;; Variables don't have types. [*] Values have types. So searching for all 
+;; variables of certain types is not very meaningful. You may rather want 
+;; to search for all values of certain types. 
+
+;; You cannot do this out of the box. However, with structs and classes, 
+;; you can define constructors or initializers that store the created 
+;; objects in tables. (If these are weak tables, like weak hash tables, you 
+;; don't even prevent them from being garbage collected.) 
+
+;; Pascal 
+
+;; [*] You can declare/declaim types for variables, but this may be ignored 
+;; by a Common Lisp implementation, and is not recorded in a way that could 
+;; be queried, at least not in a portable way. If you want to be able to 
+;; query variable types, you may have to implement your own mechanism for 
+;; registering such types, but they are then not enforced by the Common 
+;; Lisp implementation. 
+
+;;; And Zach gives what I'm looking for... 
+
+;;    (when (and (boundp s) (typep (symbol-value s) target-type)) 
+;;      ...) 
+
+(defun every-strand (&key (package *package*))
   "Bad.  What I want is a function that finds all variables in the
 PACKAGE of type STRAND or DATA-FRAME, for use in finding things.  One
 idea was to cycle through all symbols and record those which are of
 the particular type."
   (let ((lst ()))
     (do-symbols (s package) 
-      (if (typep s 'STRAND) 
-	  (push s lst))
-      (if (typep s 'DATA-FRAME)
-	  (push (data-frame-column-names s) lst)))
+      (if (and (boundp s) (typep (symbol-value s) 'STRAND))
+	  (push s lst)))
     lst))
 
+(defun every-data-frame (&key (package *package*))
+  "Bad.  What I want is a function that finds all variables in the
+PACKAGE of type STRAND or DATA-FRAME, for use in finding things.  One
+idea was to cycle through all symbols and record those which are of
+the particular type."
+  (let ((lst ()))
+    (do-symbols (s package) 
+      (if (and (boundp s) (typep (symbol-value s) 'DATA-FRAME))
+	  (push s lst)))
+    lst))
 
+#|
 
-
-#| 
-
- (defparameter s1 (make-strand 'bzr #(1 2 3) 'fixnum))
- s1
-
-
- (loop for sym in (find-all-symbols-in-package *package*)
-       if (typep sym 'STRAND) collect sym into strand-list
-       finally (return strand-list))
-
- (find-all-strands-and-dataframes :package *package*)
- (find-all-strands-and-dataframes)
-
+(defun every-strand-in-a-data-frame (&key (package *package*))
+  "Bad.  What I want is a function that finds all variables in the
+PACKAGE of type STRAND or DATA-FRAME, for use in finding things.  One
+idea was to cycle through all symbols and record those which are of
+the particular type."
+  (let ((lst ()))
+    (do-symbols (df? package) 
+      (if (and (boundp df?) (typep (symbol-value df?) 'DATA-FRAME))
+	  ;;(push df? lst) and (push (data-frame-column-names df?) lst) 
+	  ))
+    lst))
 
 |#
+
+
+
+
 
 
 

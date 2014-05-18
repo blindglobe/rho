@@ -42,8 +42,8 @@
 (data-frame-column-names df)
 (data-frame-as-lisp-array df)
 
-;; Error, 42 is not a string
-(setf (ref$ df 'bar 2) 42)
+;;; Error, 42 is not a string:  we need to catch this condition, and continue
+; (setf (ref$ df 'bar 2) 42)
 
 ;; works, since that is a string
 (setf (ref$ df 'bar 2) "Works!")
@@ -181,13 +181,12 @@ df-2a
 (typep my/strand 'STRING)
 
 
-(let ((lst ()))
-  (do-symbols (zz *package*) 
-    (print zz)
-    (if (typep zz 'STRAND) (print "TRUE") (print "FALSE"))
-    ))
 
+(defparameter s1 (make-strand 'bzr #(1 2 3) 'fixnum))
+s1
 
+(every-strand)
+(every-data-frame)
 
 ;;; Typing examples for the naive.
 

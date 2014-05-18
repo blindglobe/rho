@@ -28,7 +28,12 @@
 
    ref$
 
+
    ;;  lengthv ;; maybe, maybe not
+
+   every-strand
+   every-data-frame
+
    ))
 
 
