@@ -1,6 +1,6 @@
 ;;; -*- Mode:Lisp; Syntax:ANSI-Common-Lisp; Coding:utf-8 -*-
 
-;;; Time-stamp: <2014-05-12 14:54:27 tony>
+;;; Time-stamp: <2014-05-17 22:39:21 tony>
 ;;; Creation:   <2014-04-14 11:18:02 tony>
 ;;; File:       unittests.lisp
 ;;; Author:     AJ Rossini <blindglobe@gmail.com>
@@ -271,7 +271,7 @@
 
  (setf clunit:*clunit-report-format* :default) 
 
- (ql:quickload :rho)
+ (ql:quickload :rho :verbose T)
 
  (in-package :rho-test)
 
