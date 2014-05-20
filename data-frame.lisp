@@ -208,6 +208,8 @@ over a bit)."
         e)))
 
 
+
+
 (defmethod ref$ ((a array) (ref fixnum) &rest refs)
   (let* ((ar (array-rank a))
          (rl (lengthv refs))
@@ -262,21 +264,23 @@ over a bit)."
 
 
 (defmethod (setf ref$) (v (df data-frame) (ref symbol) &rest refs)
-  (let* ((col (find ref (data-frame-columns df)
-                    :key #'strand-name
-                    :test #'eq))
-         (col-type (strand-element-type col))
-         (col-data (strand-data col)))
-    (cond ((null refs)
-           (assert (typep v `(vector ,col-type)))
-           (setf (strand-data col) v))
-          ((= (lengthv refs) 1)
-           (assert (typep v col-type))
-           (setf (aref col-data (first refs)) v))
-          (t
-           (setf (apply #'ref$ (aref col-data (first refs)))
-                 (rest refs))))))
-
+  (let ((col (find ref (data-frame-columns df)
+		   :key #'strand-name
+		   :test #'eq)))
+    (if (null col)
+	(error "RHO (SETF REF$) df sym ref refs : sym no such variable ~S" ref)
+	(let ((col-type (strand-element-type col))
+	      (col-data (strand-data col)))
+	  (cond ((null refs)
+		 (assert (typep v `(vector ,col-type)))
+		 (setf (strand-data col) v))
+		((= (lengthv refs) 1)
+		 (assert (typep v col-type))
+		 (setf (aref col-data (first refs)) v))
+		(t
+		 (setf (apply #'ref$ (aref col-data (first refs)))
+		       (rest refs))))))))
+  
 (defmethod (setf ref$) (v (a array) (ref fixnum) &rest refs)
   (error "implement ARRAY setting, called with ~S ~S" ref refs))
 

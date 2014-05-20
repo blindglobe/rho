@@ -1,6 +1,6 @@
 ;;; -*- Mode:Lisp; Syntax:ANSI-Common-Lisp; Coding:utf-8 -*-
 
-;;; Time-stamp: <2014-05-17 22:39:21 tony>
+;;; Time-stamp: <2014-05-20 13:02:13 tony>
 ;;; Creation:   <2014-04-14 11:18:02 tony>
 ;;; File:       unittests.lisp
 ;;; Author:     AJ Rossini <blindglobe@gmail.com>
@@ -163,6 +163,9 @@
       (setf (ref$ df-1 'foo2 1) 1))
   (assert-condition simple-error
       (setf (ref$ df-1 'foo2 1) "a"))
+
+  (assert-condition simple-error
+      (setf (ref$ df-1 'i-do-not-exist 1) "a"))
 
   (assert-true
       (setf (ref$ df-1 'bar 1) "b"))

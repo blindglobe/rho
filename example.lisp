@@ -1,44 +1,45 @@
+
 (ql:quickload :rho :verbose T)
+
+;; See rho-package.lisp and use RHO-USER as an example for how to do
+;; your own packaging.
 
 (in-package :rho-user)
 
 
+;; Simple data-frame
 
-
-
-
-
-
-(defparameter df (make-data-frame '(foo #(1 2 3)) 
+(defparameter df-1 (make-data-frame '(foo #(1 2 3)) 
                          '(bar ("a" "s" "d") string) 
                          '(baz (100 102 97) (integer 90 110)))) 
 
-(pprint-data-frame df) 
+(pprint-data-frame df-1) 
 
-(equal (list (ref$ df 'bar 0)
-	     (ref$ df 'bar 1)
-	     (ref$ df 'bar 2))
+(equal (list (ref$ df-1 'bar 0)
+	     (ref$ df-1 'bar 1)
+	     (ref$ df-1 'bar 2))
        (list "a" "s" "d"))
 
-(equal (list (ref$ df 1 0)
-	     (ref$ df 1 1)
-	     (ref$ df 1 2))
+(equal (list (ref$ df-1 1 0)
+	     (ref$ df-1 1 1)
+	     (ref$ df-1 1 2))
        (list "a" "s" "d"))
 
 
-(data-frame-column-types df)
-(data-frame-column-names df)
-(data-frame-as-lisp-array df)
+(data-frame-column-types df-1)
+(data-frame-column-names df-1)
+(data-frame-as-lisp-array df-1)
 
 ;;; Error, 42 is not a string:  we need to catch this condition, and continue
-; (setf (ref$ df 'bar 2) 42)
+(ignore-errors
+  (setf (ref$ df-1 'bar 2) 42))
 
 ;; works, since that is a string
-(setf (ref$ df 'bar 2) "Works!")
+(setf (ref$ df-1 'bar 2) "Works!")
 
-(typep (ref$ df 2 1) (ref$ (data-frame-column-types df) 2))
+(typep (ref$ df-1 2 1) (ref$ (data-frame-column-types df-1) 2))
 
-df
+df-1
 
 
 
@@ -129,17 +130,17 @@ df-2a
 					(make-pointSTR :x 3.0 :y 2.0))
 				'pointSTR)
 #|
+  These seem to fail, but as we have an example solution above, no issues...
+
 		   '(bzr2 (vector (make-pointSTR :x 1.0 :y 2.0)
 		    	         (make-pointSTR :x 2.0 :y 2.0)
   		    	         (make-pointSTR :x 3.0 :y 2.0)) pointSTR)
-|#
 		   '(bzr3
 		     (vector (make-pointSTR :x 1.0 :y 2.0)
 		      (make-pointSTR :x 2.0 :y 2.0)
 		      (make-pointSTR :x 3.0 :y 2.0))
 		     pointSTR)
 
-#|  These seem to fail, but as we have an example solution above, no issues...
 		   '(bzr4 #((make-pointSTR :x 1.0 :y 2.0)
 			    (make-pointSTR :x 2.0 :y 2.0)
 			    (make-pointSTR :x 3.0 :y 2.0))
@@ -151,11 +152,48 @@ df-2a
 
 ;;; works
 (defparameter bzr-strand-1
-  (make-strand 'bzr
+  (make-strand 'bzr1
 	       #((make-pointSTR :x 1.0 :y 2.0)
 		 (make-pointSTR :x 2.0 :y 2.0)
 		 (make-pointSTR :x 3.0 :y 2.0))))
+(defparameter bzr-strand-2
+  (make-strand 'bzr2
+	       #((make-pointSTR :x 1.0 :y 2.0)
+		 (make-pointSTR :x 2.0 :y 2.0)
+		 (make-pointSTR :x 3.0 :y 2.0))
+	       ;; pointSTR ; what to put here?
+	       ))
+
+
 (length (strand-data bzr-strand-1))
+bzr-strand-1
+
+(defparameter df-4
+  (make-data-frame bzr-strand-1))
+
+df-4
+(pprint df-4)
+(pprint-data-frame df-4)
+
+(defparameter df-4a
+  (make-data-frame bzr-strand-1
+		   bzr-strand-1))
+
+df-4a
+(pprint df-4a)
+(pprint-data-frame df-4a)
+
+(setf (ref$ df-4a 'bzr1 2) 3)
+
+(ignore-errors
+  (setf (ref$ df-4a 'bzr 2) 3))
+
+;; note that because of places (reference not copy), the 3rd
+;; observation in both are set!  We need to make a copy in order to
+;; have separate variables.
+
+
+
 
 ;;; but above has type T when we'd like type POINTSTR.
 ;;; so we try to specify, but it currently fails.
@@ -202,5 +240,23 @@ s1
 	 (make-pointSTR :x 2.0 :y 2.0)
 	 (make-pointSTR :x 3.0 :y 2.0))
        '(vector pointSTR 3))  ;; => T
+
+
+
+;;; playing with prevalence and serialization
+
+;;; (ql:quickload :cl-prevalence :verbose T)
+;;; http://common-lisp.net/project/cl-prevalence/
+
+
+;;; (ql:quickload :de.setf.resource :verbose T)
+;;; https://github.com/lisp/de.setf.resource
+
+;;; (ql:quickload :wilbur :verbose T)
+;;; https://github.com/lisp/de.setf.resource
+
+
+(ql:quickload :datafly)
+
 
 
