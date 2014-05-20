@@ -2,23 +2,11 @@
 
 (in-package :rho-user)
 
-;; strands are named/(optionally typed) columns of data elements.  The
-;; optional typing means that from a CL perspective, we use T for
-;; general columns, and a more specific type (either user specified or
-;; computed using 
 
 
 
 
 
-;; a DATA-FRAME is a VECTOR of STRANDS (or VECTORS).
-;; our example uses the following types:
-;; general
-;; string
-;; restricted integer range
-;; DEFSTRUCT'd simple point class
-;; DEFCLASS'd simple point class
-;;
 
 
 (defparameter df (make-data-frame '(foo #(1 2 3)) 

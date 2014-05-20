@@ -4,7 +4,48 @@ This package was written by Marco Antoniotti in April 2014 as a
 response to a query on comp.lang.lisp from AJ (Tony) Rossini <blindglobe@gmail.com>
 regarding types/arrays and R/style dataframes.
 
-Further packaging and repository work has been done by Tony.  
+Further packaging and repository work has been done by Tony.
+
+This package consists of STRAND and DATA-FRAME classes and a REF$
+access element.  
+
+STRANDs are named/(optionally typed) columns of data elements.  The
+optional typing means that from a CL perspective, we use T for
+general columns, and a more specific type (either user specified or
+computed using upgrade-element-type-array (FIXME:AJR - not sure this
+is right).
+
+If a STRAND is of a statistical type, then it should also have
+appropriate methods for summarization.  We will need to give an API
+and examples for this.  It isn't clear if this should be in the same
+package or in a different one.  For example, numbers can be
+summmarized by the standard 5-number summary if that is indeed what
+they are (eg if they are not integers or FIXNUMs masquerading for
+factors).  
+
+
+a DATA-FRAME is a VECTOR of STRANDs (or VECTORs).
+our example uses the following types:
+general
+string
+restricted integer range
+DEFSTRUCT'd simple point class
+DEFCLASS'd simple point class
+
+For the summarization to work, we need to write the appropriate
+methods.  
+
+SUMMARIZE place
+
+should summarize an observation as a vector (perhaps single)
+of numberrs.  If a simple observation, the summary should be a number,
+if complex, it is an N-vector. This result should have annotations
+which can be used to describe the number(s).
+
+SUMMARIZE strand|df  
+
+should return a vector based on SUMMARIZE values.  Numbers can be
+described using standard 5-num summary (median/min/max/quartiles) plus mean.
 
 * Example use of this package
 
