@@ -1,6 +1,6 @@
 ;;; -*- Mode:Lisp; Syntax:ANSI-Common-Lisp; Coding:utf-8 -*-
 
-;;; Time-stamp: <2014-05-20 13:02:13 tony>
+;;; Time-stamp: <2014-07-11 19:45:57 tony>
 ;;; Creation:   <2014-04-14 11:18:02 tony>
 ;;; File:       unittests.lisp
 ;;; Author:     AJ Rossini <blindglobe@gmail.com>
@@ -32,8 +32,8 @@
 (defsuite rho-strand (rho))
 (defsuite rho-df (rho))
 
-;;; fixtures, including data and data structures.
-;;; data structures are toy versions, and should not be exported. 
+;;; fixtures, including data and data structures, the latter which are
+;;; toy versions, and not intended to be exported.
 
 (defstruct pointSTR (x 0.0 :type float) (y 0.0 :type float))
 
@@ -93,8 +93,17 @@
 (deffixture rho-df (@body)
   (let ((df-1
 	 (make-data-frame '(foo #(1 2 3)) 
-			  '(bar ("a" "s" "d") string) 
-			  '(baz (100 102 97) (integer 90 110))
+			  '(bar  ("a" "s" "d") string) 
+#|
+			  '(bar2 (eval
+				  (nth 0
+				   (fare-csv:read-csv-file "test-list.txt")) string))
+			  '(make-strand 'bar3
+			    (eval
+			     (nth 0
+			      (fare-csv:read-csv-file "test-list.txt"))) 'string)
+|#
+			  '(baz  (100 102 97) (integer 90 110))
 			  (make-strand 'bzr
 				       (vector (make-pointSTR :x 1.0 :y 2.0)
 					       (make-pointSTR :x 2.0 :y 2.0)
@@ -136,7 +145,6 @@
 
 	
 (deftest indexing-df (rho-df)
-  ;; (assert-true (every (lambda (d) (typep d element-type)) data))
   (assert-true (typep (ref$ df-1 2 1) (ref$ (data-frame-column-types df-1) 2))))
 
 
@@ -166,6 +174,13 @@
 
   (assert-condition simple-error
       (setf (ref$ df-1 'i-do-not-exist 1) "a"))
+
+
+  (assert-equal "s" (ref$ df-1 'bar 1))
+#|
+  (assert-equal "s" (ref$ df-1 'bar2 1))
+  (assert-equal "s" (ref$ df-1 'bar3 1))
+|#
 
   (assert-true
       (setf (ref$ df-1 'bar 1) "b"))
@@ -274,6 +289,9 @@
 
  (setf clunit:*clunit-report-format* :default) 
 
+ (ql:quickload :fare-csv :verbose T)
+ (nth 0 (fare-csv:read-csv-file "test-list.txt"))
+
  (ql:quickload :rho :verbose T)
 
  (in-package :rho-test)
@@ -283,7 +301,7 @@
        :use-debugger NIL
        :report-progress T)
 
- (run-test 'access-df-4
+ (run-test 'access-df-2
 	  :use-debugger T
 	  :report-progress T)
 
@@ -291,7 +309,7 @@
 	  :use-debugger T
 	  :report-progress T)
 
- (run-test 'dataframes
+ (run-test 'ref$-dataframe
 	  :use-debugger T
 	  :report-progress T)
 
@@ -300,5 +318,14 @@
  (rerun-failed-tests :use-debugger NIL)
 
 |#
+
+
+#| New Tests
+
+
+  (assert-true (every (lambda (d) (typep d element-type)) data))
+
+|#
+
 
 ;;; End of File
