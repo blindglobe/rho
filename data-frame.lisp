@@ -33,7 +33,24 @@ because most implementations are lazy."
   "Params:
 NAME:         symbol,
 DATA:         vector
-ELEMENT-TYPE: type  (opt)."
+ELEMENT-TYPE: type  (opt).
+
+Examples:
+
+- typed fixnums
+
+ (make-strand
+   'bar2
+   #(1 2 3 4 5 6)
+   'fixnum)
+
+- external, typed strings
+
+ (make-strand
+   'bar3
+   (concatenate 'vector (nth 0 (fare-csv:read-csv-file \"test-list.txt\")))
+   'string)
+"
   (declare (type symbol name)
            (type vector data))
   (assert (every (lambda (d) (typep d element-type)) data))
@@ -182,15 +199,16 @@ over a bit)."
   (map 'list #'strand-element-type (data-frame-columns df)))
 
 
+;;; FIXME.
 (defun data-frame-as-lisp-array (df)
   (let ((cols (map 'list #'strand-data (data-frame-columns df))))
     (make-array (list (lengthv (first cols)) (lengthv cols))
                 :initial-contents cols)))
 
+;;; strand and df element accessor, column-oriented.
 
-;;; strand and df element accessor:
-
-(defgeneric ref$ (item ref &rest refs))
+(defgeneric ref$ (item ref &rest refs)
+  (:documentation "typed column referencing"))
 
 (defmethod ref$ ((df data-frame) (ref fixnum) &rest refs)
   (let ((e (strand-data (aref (data-frame-columns df) ref))))
@@ -206,8 +224,6 @@ over a bit)."
     (if refs
         (apply #'ref$ e refs)
         e)))
-
-
 
 
 (defmethod ref$ ((a array) (ref fixnum) &rest refs)
@@ -242,11 +258,10 @@ over a bit)."
       (error "RHO: sequences and strands MUST have only 1 index")))
 
 
-
-
 ;;;; Setf methods...
 
-(defgeneric (setf ref$) (v item ref &rest refs))
+(defgeneric (setf ref$) (v item ref &rest refs)
+  (:documentation "Setter methods for column referencing"))
 
 (defmethod (setf ref$) (v (df data-frame) (ref fixnum) &rest refs)
   (let* ((col (aref (data-frame-columns df) ref))
@@ -371,11 +386,5 @@ the particular type."
 |#
 
 
-
-
-
-
-
-	  
 
 ;;;; end of file -- data-frame.lisp --
