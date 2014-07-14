@@ -319,6 +319,29 @@ over a bit)."
 
 
 
+
+;;; Case (row-oriented) extraction. 
+;;; FIXME: THIS REQUIRES A NEW NAME, CASE$ is stupid
+
+(defgeneric case$ (df ref &rest refs)
+  (:documentation "used to extract a case (row) from a DATA-FRAME.
+  REF and REFS describe which cases/rows to extract.  This is
+  different from the model used for ref$ which selects column and then
+  the item in column."))
+
+(defmethod case$ ((df data-frame) (ref fixnum) &rest refs)
+  (let ((cases (concatenate 'list (list ref) refs)))
+    (map 'list
+	 (lambda (x) (ref$ df x cases)) ;; not quite right, since
+					  ;; this is more of a
+					  ;; subsetting approach.
+					  ;; Need to "map on map".
+	 (data-frame-column-names df))))
+
+
+
+
+
 ;;; To find a particular vector/strand (mix between R and LispStat)
 
 
