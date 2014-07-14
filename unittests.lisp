@@ -1,6 +1,6 @@
 ;;; -*- Mode:Lisp; Syntax:ANSI-Common-Lisp; Coding:utf-8 -*-
 
-;;; Time-stamp: <2014-07-11 19:45:57 tony>
+;;; Time-stamp: <2014-07-13 16:14:07 tony>
 ;;; Creation:   <2014-04-14 11:18:02 tony>
 ;;; File:       unittests.lisp
 ;;; Author:     AJ Rossini <blindglobe@gmail.com>
@@ -95,21 +95,27 @@
 	 (make-data-frame '(foo #(1 2 3)) 
 			  '(bar  ("a" "s" "d") string) 
 #|
-			  '(bar2 (eval
-				  (nth 0
-				   (fare-csv:read-csv-file "test-list.txt")) string))
-			  '(make-strand 'bar3
-			    (eval
-			     (nth 0
-			      (fare-csv:read-csv-file "test-list.txt"))) 'string)
+			  '(bar2 
+			    (concatenate 'vector
+			     (nth 0 (fare-csv:read-csv-file "test-list.txt")))
+			     string)
 |#
+
 			  '(baz  (100 102 97) (integer 90 110))
 			  (make-strand 'bzr
 				       (vector (make-pointSTR :x 1.0 :y 2.0)
 					       (make-pointSTR :x 2.0 :y 2.0)
 					       (make-pointSTR :x 3.0 :y 2.0))
 				       'pointSTR)
-			  '(foo2 #(1 2 3) fixnum)))
+			  '(foo2 #(1 2 3) fixnum)
+
+			  (make-strand
+			   'bar3
+			   (concatenate 'vector
+					(nth 0
+					     (fare-csv:read-csv-file "test-list.txt")))
+			   'string)
+			  ))
 
 	(df-2
 	 (make-data-frame '(foo #(1 2 3)) 
@@ -118,7 +124,10 @@
 	(df-3
 	 (make-data-frame '(v0 ((0 0) (0 1) (0 2) (0 3)) list)
 			  '(v1 ((1 0) (1 1) (1 2) (1 3)) list)
-			  '(v2 ((2 0) (2 1) (2 2) (2 3)) list))))
+			  '(v2 ((2 0) (2 1) (2 2) (2 3)) list)))
+
+
+)
 
     @body))
 
@@ -177,10 +186,7 @@
 
 
   (assert-equal "s" (ref$ df-1 'bar 1))
-#|
-  (assert-equal "s" (ref$ df-1 'bar2 1))
   (assert-equal "s" (ref$ df-1 'bar3 1))
-|#
 
   (assert-true
       (setf (ref$ df-1 'bar 1) "b"))
@@ -297,9 +303,15 @@
  (in-package :rho-test)
 
 ;;; Main call for testing
+
+ (run-suite 'rho
+       :use-debugger T
+       :report-progress T)
+
  (run-suite 'rho
        :use-debugger NIL
        :report-progress T)
+
 
  (run-test 'access-df-2
 	  :use-debugger T
@@ -318,14 +330,5 @@
  (rerun-failed-tests :use-debugger NIL)
 
 |#
-
-
-#| New Tests
-
-
-  (assert-true (every (lambda (d) (typep d element-type)) data))
-
-|#
-
 
 ;;; End of File
