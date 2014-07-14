@@ -243,6 +243,101 @@ s1
 
 
 
+
+
+
+
+
+
+
+
+(defparameter df-1
+  (make-data-frame
+   
+   '(foo #(1 2 3)) 
+
+   '(bar  ("a" "s" "d") string) 
+
+   (make-strand
+    'bar3
+    (concatenate 'vector
+		 (nth 0
+		      (fare-csv:read-csv-file "test-list.txt")))
+    'string)
+
+   '(baz  (100 102 97) (integer 90 110))
+
+   (make-strand 'bzr
+		(vector (make-pointSTR :x 1.0 :y 2.0)
+			(make-pointSTR :x 2.0 :y 2.0)
+			(make-pointSTR :x 3.0 :y 2.0))
+		'pointSTR)
+   '(foo2 #(1 2 3) fixnum)))
+
+
+(ref$ df-1 'bar3 0)
+(ref$ df-1 'bar3 1)
+(ref$ df-1 'bar3 2)
+(ref$ df-1 'bar3 3)
+
+(data-frame-column-names df-1)
+(data-frame-column-types df-1)
+
+;;; fix it...
+(data-frame-as-lisp-array df-1)
+
+
+(pprint-data-frame df-1)
+
+;; Get vector of columns
+(data-frame-columns df-1)
+;; get second column -- type strand
+(aref  (data-frame-columns df-1) 1)
+;; get data from the strand, type vector
+(strand-data (aref  (data-frame-columns df-1) 1))
+;; get the desired element in the strand
+(aref (strand-data (aref  (data-frame-columns df-1) 1)) 1)
+(ref$ (aref (data-frame-columns df-1) 1) 1)
+
+
+;; (ref$ (symbol (nth 1 (data-frame-column-names df-1))) 1) ;;FIXME
+
+
+;;; To get a row vector, from case 2
+
+(let ((case 2))
+  (map 'list
+       (lambda (x) (ref$ df-1 x case))
+       (data-frame-column-names df-1)))
+
+(let ((case 2))
+  (map 'list
+       (lambda (x) (ref$ df-1 x case))
+       (list 0 1 2 3 4 5)))
+
+;;; from case 0
+
+(let ((case 0))
+  (map 'list
+       (lambda (x) (ref$ df-1 x case))
+       (data-frame-column-names df-1)))
+
+(let ((case 0))
+  (map 'list
+       (lambda (x) (ref$ df-1 x case))
+       (list 0 1 2 3 4 5)))
+
+
+
+
+
+
+
+
+
+
+
+
 ;;; playing with prevalence and serialization
 
 ;;; (ql:quickload :cl-prevalence :verbose T)
