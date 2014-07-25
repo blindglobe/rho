@@ -322,6 +322,7 @@ over a bit)."
 
 ;;; Case (row-oriented) extraction. 
 ;;; FIXME: THIS REQUIRES A NEW NAME, CASE$ is stupid
+;;; AND IT IS COMPLETELY INEFFICIENT
 
 (defgeneric case$ (df ref &rest refs)
   (:documentation "used to extract a case (row) from a DATA-FRAME.

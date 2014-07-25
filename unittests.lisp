@@ -1,6 +1,6 @@
 ;;; -*- Mode:Lisp; Syntax:ANSI-Common-Lisp; Coding:utf-8 -*-
 
-;;; Time-stamp: <2014-07-13 16:14:07 tony>
+;;; Time-stamp: <2014-07-25 14:53:35 tony>
 ;;; Creation:   <2014-04-14 11:18:02 tony>
 ;;; File:       unittests.lisp
 ;;; Author:     AJ Rossini <blindglobe@gmail.com>
@@ -18,7 +18,7 @@
 
 
 ;;; To use this as a standalone file, quickload RHO (most likely from
-;;; your local directory) and load the rest of the file.  The
+;;; your local directory) and then consider evaluating piecewise, the
 ;;; commented out section at the end is useful for developing new
 ;;; unittests as well as processing existing ones.
 
@@ -41,6 +41,24 @@
   ((x :type float :initarg :x :initform 0.1)
    (y :type float :initarg :y :initform 0.2))
   (:documentation "silly point class for illustration"))
+
+
+;; we'll be loading from the RHO homedir, so this simplifies things...
+(defun path-to-rho-home (x)
+  "Given a string representing a relative path from the RHO home
+directory, return a string denoting the complete path.  
+
+FIXME: UNIX-centric (though might work on Mac OSX).  We really want to
+return a pathspec, not a string/namespec"
+  (declare (type string x))
+  (concatenate 'string 
+	       (directory-namestring
+		(truename (asdf:system-definition-pathname :rho)))
+	       x))
+
+;; (path-to-rho-home "test")
+
+
 
 (deffixture rho-strand (@body)
   (let ((strand-struct-without-type
@@ -113,7 +131,8 @@
 			   'bar3
 			   (concatenate 'vector
 					(nth 0
-					     (fare-csv:read-csv-file "test-list.txt")))
+					     (fare-csv:read-csv-file
+					      (path-to-rho-home "test-list.txt"))))
 			   'string)
 			  ))
 
@@ -293,12 +312,13 @@
 ;;; We don't evaluate these during compile or load time!  Just useful
 ;;; for testing new and runnning old tests.
 
- (setf clunit:*clunit-report-format* :default) 
 
  (ql:quickload :fare-csv :verbose T)
  (nth 0 (fare-csv:read-csv-file "test-list.txt"))
 
  (ql:quickload :rho :verbose T)
+
+ (setf clunit:*clunit-report-format* :default) 
 
  (in-package :rho-test)
 
