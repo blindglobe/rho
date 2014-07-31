@@ -324,20 +324,28 @@ over a bit)."
 ;;; FIXME: THIS REQUIRES A NEW NAME, CASE$ is stupid
 ;;; AND IT IS COMPLETELY INEFFICIENT
 
-(defgeneric case$ (df ref &rest refs)
-  (:documentation "used to extract a case (row) from a DATA-FRAME.
-  REF and REFS describe which cases/rows to extract.  This is
+(defgeneric case$ (df case &rest cases)
+  (:documentation "extracts a case (row) or cases from a DATA-FRAME.
+  CASE and CASES describe which cases/rows to extract.  This is
   different from the model used for ref$ which selects column and then
-  the item in column."))
+  the items in column."))
 
-(defmethod case$ ((df data-frame) (ref fixnum) &rest refs)
-  (let ((cases (concatenate 'list (list ref) refs)))
-    (map 'list
-	 (lambda (x) (ref$ df x cases)) ;; not quite right, since
-					  ;; this is more of a
-					  ;; subsetting approach.
-					  ;; Need to "map on map".
-	 (data-frame-column-names df))))
+(defmethod case$ ((df data-frame) (case fixnum) &rest cases)
+  (if (not cases)
+      (map 'list
+	   (lambda (x) (ref$ df x case))
+	   (data-frame-column-names df))
+      (let ((allcases (concatenate 'list (list case) cases)))
+	(map 'list 
+	     (lambda (y)
+	       (map 'list
+		    (lambda (x) (ref$ df x y)) ;; not quite right, since
+		    ;; this is more of a
+		    ;; subsetting approach.
+		    ;; Need to "map on map".
+		    (data-frame-column-names df)))
+	     allcases))))
+
 
 
 

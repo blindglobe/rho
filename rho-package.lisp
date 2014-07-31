@@ -26,7 +26,7 @@
    "DATA-FRAME-AS-LISP-ARRAY"
    pprint-data-frame
 
-   ref$
+   ref$ case$
 
    data-frame-columns
 
