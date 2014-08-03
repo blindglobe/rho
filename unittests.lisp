@@ -1,6 +1,6 @@
 ;;; -*- Mode:Lisp; Syntax:ANSI-Common-Lisp; Coding:utf-8 -*-
 
-;;; Time-stamp: <2014-07-25 14:53:35 tony>
+;;; Time-stamp: <2014-07-31 11:35:03 tony>
 ;;; Creation:   <2014-04-14 11:18:02 tony>
 ;;; File:       unittests.lisp
 ;;; Author:     AJ Rossini <blindglobe@gmail.com>
@@ -288,6 +288,24 @@ return a pathspec, not a string/namespec"
   (assert-equalp (ref$ df-1 3 0) (make-pointSTR :x 1.0 :y 2.0)) )
 
 
+(deftest case$-df (rho-df) 
+  (assert-equalp
+      (case$ df-1 0)
+      (list 1 "a" 100 (make-pointSTR :x 1.0 :y 2.0))))
+
+(deftest cases$-df-1 (rho-df) 
+  (let ((result (list 1 "a" 100 (make-pointSTR :x 1.0 :y 2.0))))
+    (loop
+       for i from 0 to 3
+       do (assert-equal  (ref$ (case$ df-1 0) i) (nth i result)))))
+
+
+
+#|
+  (run-test 'case$-df
+	  :use-debugger T
+	  :report-progress T)
+|#
 
 
 #|
