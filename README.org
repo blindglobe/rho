@@ -1,8 +1,8 @@
 * Overview
 
 This package was written by Marco Antoniotti in April 2014 as a
-response to a query on comp.lang.lisp from AJ (Tony) Rossini <blindglobe@gmail.com>
-regarding types/arrays and R/style dataframes.
+response to a query on comp.lang.lisp from AJ (Tony) Rossini
+<blindglobe@gmail.com> regarding types/arrays and R/style dataframes.
 
 Further packaging and repository work has been done by Tony.
 
@@ -49,6 +49,13 @@ described using standard 5-num summary (median/min/max/quartiles) plus mean.
 
 * Example use of this package
 
+#+BEGIN_SRC lisp
+  (ql:quickload :rho)
+#+END_SRC
+
+#+RESULTS:
+: #<PACKAGE "RHO-USER">
+
 (taken from a response from Marco to Tony):
 
 > Does this help, Marco? 
@@ -58,20 +65,36 @@ I am sorry, but I still do not understand what you mean by "computing with types
 This is what I cooked up. 
 
 #+BEGIN_SRC lisp
-(setf df (make-data-frame '(foo #(1 2 3)) 
-                         '(bar ("a" "s" "d") string) 
-                         '(baz (100 102 97) (integer 90 110)))) 
+  (in-package :rho-user)
+  (defparameter df (make-data-frame '(foo #(1 2 3)) 
+                           '(bar ("a" "s" "d") string) 
+                           '(baz (100 102 97) (integer 90 110))))
+  df
 #+END_SRC
+
+#+RESULTS:
+: #<DATA-FRAME [3] #<VAR FOO -> 1 2 3> #<VAR BAR [STRING] -> "a" "s" "d"> #<VAR BAZ [(INTEGER
+:                                                                                     90
+:                                                                                     110)] -> 100 102 97>>
 
 
 #+BEGIN_EXAMPLE
-#S(DATA-FRAME :COLUMNS #(#S(STRAND :NAME FOO :DATA #(1 2 3) :ELEMENT-TYPE T) #S(STRAND :NAME BAR :DATA #("a" "s" "d") :ELEMENT-TYPE STRING) #S(STRAND :NAME BAZ :DATA #(100 102 97) :ELEMENT-TYPE (INTEGER 90 110)))) 
+#S(DATA-FRAME :COLUMNS #(#S(STRAND :NAME FOO :DATA #(1 2 3)
+              :ELEMENT-TYPE T)
+              #S(STRAND :NAME BAR :DATA #("a" "s" "d") 
+                        :ELEMENT-TYPE STRING)
+              #S(STRAND :NAME BAZ :DATA #(100 102 97)
+              :ELEMENT-TYPE (INTEGER 90 110)))) 
 #+END_EXAMPLE
 
 
 #+BEGIN_SRC lisp
-(pprint-data-frame df) 
+  (in-package :rho-user)
+  (pprint-data-frame df) 
 #+END_SRC
+
+#+RESULTS:
+: NIL
 
 #+BEGIN_EXAMPLE
         FOO       BAR       BAZ 
@@ -83,10 +106,11 @@ NIL
 
 
 #+BEGIN_SRC lisp
-(setf (ref$ df 'bar 2) 42) 
+  (in-package :rho-user)
+  (setf (ref$ df 'bar 2) 42) 
 #+END_SRC
 
-
+and it errors with:
 
 #+BEGIN_EXAMPLE
 Error: The assertion (TYPEP V COL-TYPE) failed. 
@@ -100,8 +124,12 @@ Type :bug-form "<subject>" for a bug report template or :? for other options.
 
 
 #+BEGIN_SRC lisp
+(in-package :rho-user)
 (data-frame-column-types df) 
 #+END_SRC
+
+#+RESULTS:
+| T | STRING | (INTEGER 90 110) |
 
 #+BEGIN_EXAMPLE 
 (T STRING (INTEGER 90 110)) 
@@ -109,8 +137,12 @@ Type :bug-form "<subject>" for a bug report template or :? for other options.
 
 
 #+BEGIN_SRC lisp
+(in-package :rho-user)
 (setf (ref$ df 'bar 2) "Works!") 
 #+END_SRC
+
+#+RESULTS:
+: Works!
 
 #+BEGIN_EXAMPLE 
 "Works!" 
@@ -118,8 +150,12 @@ Type :bug-form "<subject>" for a bug report template or :? for other options.
 
 
 #+BEGIN_SRC lisp
-RHO 123 > (pprint-data-frame df) 
+(in-package :rho-user)
+(pprint-data-frame df) 
 #+END_SRC
+
+#+RESULTS:
+: NIL
 
 #+BEGIN_EXAMPLE 
         FOO       BAR       BAZ 
@@ -130,8 +166,12 @@ NIL
 #+END_EXAMPLE
 
 #+BEGIN_SRC lisp
+(in-package :rho-user)
 (typep (ref$ df 2 1) (ref$ (data-frame-column-types df) 2)) 
 #+END_SRC
+
+#+RESULTS:
+: T
 
 #+BEGIN_EXAMPLE
 T
@@ -147,7 +187,6 @@ generalized JOIN operation (or CONCAT).
 
 Of course, no real compile-time use of the types can be made, but
 that's just the way it is.
-
 
 * API
 
