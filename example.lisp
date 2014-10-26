@@ -1,29 +1,40 @@
 
 (ql:quickload :rho :verbose T)
 
-;; See rho-package.lisp and use RHO-USER as an example for how to do
-;; your own packaging.
+;; See rho-package.lisp and use RHO-USER as an example for how to use
+;; RHO within another package.
 
 (in-package :rho-user)
-
 
 ;; Simple data-frame
 
 (defparameter df-1 (make-data-frame '(foo #(1 2 3)) 
                          '(bar ("a" "s" "d") string) 
-                         '(baz (100 102 97) (integer 90 110)))) 
+                         '(baz (100 102 97) (integer 90 110))))
 
-(pprint-data-frame df-1) 
+(pprint-data-frame df-1)
+
+(defparameter df-1-second-column
+  (list "a" "s" "d"))
+
+(defparameter df-1-first-row
+  (list 1 "a" 100))
 
 (equal (list (ref$ df-1 'bar 0)
 	     (ref$ df-1 'bar 1)
 	     (ref$ df-1 'bar 2))
-       (list "a" "s" "d"))
+       df-1-second-column)
 
 (equal (list (ref$ df-1 1 0)
 	     (ref$ df-1 1 1)
 	     (ref$ df-1 1 2))
-       (list "a" "s" "d"))
+       df-1-second-column)
+
+(equal (list (ref$ df-1 0 0)
+	     (ref$ df-1 1 0)
+	     (ref$ df-1 2 0))
+       df-1-first-row)
+
 
 
 (data-frame-column-types df-1)
@@ -40,6 +51,8 @@
 (typep (ref$ df-1 2 1) (ref$ (data-frame-column-types df-1) 2))
 
 df-1
+
+(pprint-data-frame df-1)
 
 
 
@@ -100,6 +113,7 @@ p2a
 
 
 df-2a
+(pprint df-2a)
 (pprint-data-frame df-2a)
 
 (data-frame-column-types df-2a)
@@ -129,7 +143,15 @@ df-2a
 					(make-pointSTR :x 2.0 :y 2.0)
 					(make-pointSTR :x 3.0 :y 2.0))
 				'pointSTR)
+
+		   ;; (***) The commented out region below was to fit
+		   ;; in right here!
+		   
+		   ))
+
+
 #|
+  These would belong above (see comment (***))
   These seem to fail, but as we have an example solution above, no issues...
 
 		   '(bzr2 (vector (make-pointSTR :x 1.0 :y 2.0)
@@ -146,7 +168,7 @@ df-2a
 			    (make-pointSTR :x 3.0 :y 2.0))
 		     pointSTR)
 |#
-		   ))
+
 
 (data-frame-column-types df-2)
 
@@ -324,6 +346,27 @@ s1
 (case$ df-2 0 1)
 (case$ df-2 1 0 1)
 
+
+
+;;; READING CSV files into RHO data structures.
+
+(defparameter *rho-installation-home-dir*
+  (directory-namestring
+   (truename (asdf:system-definition-pathname :rho)))
+  "Value considered \"home\" for the installation.  Requires the use
+  of ASDF to find out where we are.  But ASDF is useful (required?) no
+  matter what.  This is used to dummy-proof the location of the
+  examples by dynamically determining them.")
+
+
+
+(macrolet ((rho-dir (root-str)
+	     `(pathname (concatenate 'string
+				     (namestring *rho-installation-home-dir*) ,root-str)))
+
+	   (rho-defdir (target-dir-var  root-str)
+	     `(defvar ,target-dir-var (rho-dir ,root-str))))
+  (rho-defdir *rho-example-dir* "example/"))
 
 
 
