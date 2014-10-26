@@ -379,11 +379,40 @@ over a bit)."
 ;;    (when (and (boundp s) (typep (symbol-value s) target-type)) 
 ;;      ...) 
 
+
+
+;;; MAYBE: The following two should be macro-ized.  They are close
+;;; enough that we should be able to make them do the right thing and
+;;; make changes to the code only once.  But we need a macro expert to
+;;; make this happen.
+
+#| 
+
+HERE IS THE BASIC (unimplemented) SPECIFICATION TO REPLACE THE
+FOLLOWING TWO FUNCTIONS (ie EVERY-STRAND and EVERY-DF -- not clear we
+should or could include the nesting approach within this.
+
+ (defmacro every-finder (TYPE) 
+
+    '(defun every-`TYPE (&key (package *package*))
+       "Return a list of all variables in the PACKAGE of type `TYPE
+        for use in finding things."
+       (let ((lst ()))
+         (do-symbols (s package) 
+            (if (and (boundp s) (typep (symbol-value s) '`TYPE))
+       	    (push s lst)))
+         lst))
+    )
+
+ (every-finder STRAND) ;-> defines EVERY-STRAND function 
+ (every-finder DATA-FRAME) ;-> defines EVERY-DATA-FRAME function 
+
+|#
+
+
 (defun every-strand (&key (package *package*))
-  "Bad.  What I want is a function that finds all variables in the
-PACKAGE of type STRAND or DATA-FRAME, for use in finding things.  One
-idea was to cycle through all symbols and record those which are of
-the particular type."
+  "This is as advertised but not quite right.  It returns all STRAND
+   places in the top level, but not any that are nested."
   (let ((lst ()))
     (do-symbols (s package) 
       (if (and (boundp s) (typep (symbol-value s) 'STRAND))
@@ -391,10 +420,10 @@ the particular type."
     lst))
 
 (defun every-data-frame (&key (package *package*))
-  "Bad.  What I want is a function that finds all variables in the
-PACKAGE of type STRAND or DATA-FRAME, for use in finding things.  One
-idea was to cycle through all symbols and record those which are of
-the particular type."
+  "This is as advertised but not quite right.  It returns all STRAND
+   places in the top level, but not any that are nested. We do not yet
+   nest DATA-FRAMEs, so this works.  Find all variables in the PACKAGE
+   of type DATA-FRAME, for use in finding things."
   (let ((lst ()))
     (do-symbols (s package) 
       (if (and (boundp s) (typep (symbol-value s) 'DATA-FRAME))
@@ -403,7 +432,18 @@ the particular type."
 
 #|
 
-(defun every-strand-in-a-data-frame (&key (package *package*))
+ (defun every-strand-in-a-data-frame (&key (package *package*))
+
+  "Bad.  What I want is a function that finds all variables in the
+PACKAGE of type STRAND or DATA-FRAME, and then cycles through the
+DATA-FRAME for variable names.  One idea was to cycle through all
+symbols and record those which are of the particular type.  It is the
+latter part which is NOT working yet unfortunately.  We only have the
+variables which are strands, not the strands which are within
+data-frames.  Ideally we should report on the strand within dataframe
+using the unevaluated function/command, which could be evaluated to
+return the stored data."
+
   "Bad.  What I want is a function that finds all variables in the
 PACKAGE of type STRAND or DATA-FRAME, for use in finding things.  One
 idea was to cycle through all symbols and record those which are of
@@ -416,6 +456,8 @@ the particular type."
     lst))
 
 |#
+
+
 
 
 
