@@ -8,6 +8,9 @@
 
 ;; Simple data-frame
 
+;; the basic API consists of creating, and element-wise getting and
+;; setting.
+
 (defparameter df-1 (make-data-frame '(foo #(1 2 3)) 
                          '(bar ("a" "s" "d") string) 
                          '(baz (100 102 97) (integer 90 110))))
@@ -34,7 +37,6 @@
 	     (ref$ df-1 1 0)
 	     (ref$ df-1 2 0))
        df-1-first-row)
-
 
 
 (data-frame-column-types df-1)
@@ -267,27 +269,13 @@ s1
 
 
 
-
-
-
-
-
-
 (defparameter df-2
   (make-data-frame
    
    '(foo #(1 2 3)) 
 
    '(bar  ("a" "s" "d") string) 
-#|
-   ;;; fixme - need to make this generic-proof via auto-directory location
-   (make-strand
-    'bar3
-    (concatenate 'vector
-		 (nth 0
-		      (fare-csv:read-csv-file "test-list.txt")))
-    'string)
-|#
+
    '(baz  (100 102 97) (integer 90 110))
 
    (make-strand 'bzr
@@ -350,7 +338,10 @@ s1
 
 ;;; READING CSV files into RHO data structures.
 
-(defparameter *rho-installation-home-dir*
+(ql:quickload :fare-csv)
+(ql:quickload :listoflist)
+
+(defparameter *rho-home-dir*
   (directory-namestring
    (truename (asdf:system-definition-pathname :rho)))
   "Value considered \"home\" for the installation.  Requires the use
@@ -359,14 +350,82 @@ s1
   examples by dynamically determining them.")
 
 
-
 (macrolet ((rho-dir (root-str)
 	     `(pathname (concatenate 'string
-				     (namestring *rho-installation-home-dir*) ,root-str)))
+				     (namestring *rho-home-dir*) ,root-str)))
 
 	   (rho-defdir (target-dir-var  root-str)
 	     `(defvar ,target-dir-var (rho-dir ,root-str))))
   (rho-defdir *rho-example-dir* "example/"))
+
+
+(defparameter data-file-to-strand
+  (make-strand 'bar3
+	       (concatenate 
+		'vector
+		(nth 0
+		     (fare-csv:read-csv-file
+		      (concatenate 'string
+				   (namestring *rho-example-dir*)
+				   "test-list.txt"))))
+	       'string))
+
+data-file-to-strand
+
+;;; This doesn-t work, but the solution could be to embed it 
+(pprint-data-frame data-file-to-strand)
+
+;;;; FIXME: reading CSV file into DATA-FRAME
+
+(defparameter csv-file-contents 
+  (fare-csv:read-csv-file
+   (concatenate 'string
+		(namestring *rho-example-dir*)
+		"test-df.csv")))
+
+(defparameter csv-var-labels/names (nth 0 csv-file-contents))
+
+;; csv-file-contents is in row-list-form
+(defparameter csv-column-list-form (listoflist:transpose-listoflist csv-file-contents))
+
+
+
+
+#|
+(defparameter dataframe-from-csvfile
+  (make-dataframe
+   
+
+   var1
+   var2
+   var3))
+
+
+
+'bar3
+   (concatenate 
+    'vector
+    (nth 0
+	 (fare-csv:read-csv-file
+	  (concatenate 'string
+		       (namestring *rho-example-dir*)
+		       "test-list.txt"))))
+   'string))
+
+
+|#
+
+#|
+(car (list 0 1 2 3 4)) ;-> 0    (varname)
+(cdr (list 0 1 2 3 4)) ;-> rest (data)
+
+(values (list 1 2 3))
+(values (list (list 1) (list 2 3)))
+(values '(1 2 3))
+(values 1 2 3)
+
+|#
+
 
 
 
@@ -384,7 +443,36 @@ s1
 ;;; https://github.com/lisp/de.setf.resource
 
 
-(ql:quickload :datafly)
+;;; (ql:quickload :datafly)
+
+;;; Statistical classing for STRANDs
+;;;
+;;; The idea is to include a means for summarizing or describing based
+;;; on the contents.  We have to have a means for singular values
+;;; (rounding or contrast to a fixed point), and kinetics structures
+;;; (time-series, longitudinal measurements) as well as "spatial"
+;;; structures such as networks.  Additional specialized structures
+;;; such as expression arrays, sequences, and matrix-like measures
+;;; also need descriptives.  There are generic structure builders such
+;;; as replicates which work by getting centrality (means, medians)
+;;; and extremal (quantiles, min/max, standard deviation,
+;;; inter-quartile range) measures for the replicated values.
+;;;
+;;; This is implemented by adding 2 summary functions, an element-wise
+;;; and a collection-wise (column-wise) summary
 
 
 
+(defgeneric summarize-element (x)
+  (:documentation "use type information to provide possible summarizes
+  which can be applied.")
+  (:method ((x number))
+    nil)
+  (:method ((x string))
+    nil))
+
+(defgeneric summarize-collection (x)
+  (:documentation "use type information to provide possible summarizes
+  which can be applied.")
+  (:method ((x number)) nil)
+  (:method (())))
