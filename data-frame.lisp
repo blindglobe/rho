@@ -67,6 +67,7 @@ Examples:
               (coerce (strand-data s) 'list)))))
 
 (defgeneric lengthv (x)
+  (:documentation "common generic computing lengths for sequences.")
   (:method ((x strand))
    (cl:length (strand-data x)))
   (:method ((x vector))
