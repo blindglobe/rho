@@ -12,7 +12,9 @@
 
   (:export
 
+   data-frame
    make-data-frame
+
 
    strand
    make-strand
