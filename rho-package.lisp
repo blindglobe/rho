@@ -12,14 +12,14 @@
 
   (:export
 
-   "MAKE-DATA-FRAME"
-   ;; Add other...
-
+   make-data-frame
 
    strand
-   "MAKE-STRAND"
+   make-strand
+   strand-name
    strand-data       ; exported for debugging only, I think.  Normally
 		     ; ref$ should be the only means of accessing data
+   strand-element-type
 
    "DATA-FRAME-COLUMN-NAMES"
    "DATA-FRAME-COLUMN-TYPES"
