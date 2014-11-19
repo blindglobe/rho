@@ -58,10 +58,14 @@ df-1
 
 
 
+
+(let ((s (make-strand 'test-strand (vector 0 1 2 3 4) 'fixnum)))
+  (list (ref$ s 1) (strand-element-type s)))
+
+(let ((s (make-strand 'test-strand (vector 0 1 2 3 4) '(integer 0 10))))
+  (list (ref$ s 1) (strand-element-type s)))
+
 #|
-  (let ((s (make-strand 'test-strand (vector 0 1 2 3 4) 'fixnum)))
-    (ref$ s 1))
-      
   (let ((s (make-strand 'test-strand (vector 0 1 2 3 4) 'fixnum)))
     (loop
        for i from 0 to 4
@@ -230,6 +234,7 @@ df-4a
 (typep my/strand 'STRAND)
 (typep my/strand 'STRING)
 
+(typep 3.4 'number)
 
 
 (defparameter s1 (make-strand 'bzr #(1 2 3) 'fixnum))
