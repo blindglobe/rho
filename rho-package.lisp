@@ -7,7 +7,7 @@
 (in-package :cl-user)
 
 (defpackage "IT.UNIMIB.DISCO.MA.RHO"
-  (:use cl alexandria)
+  (:use :cl :alexandria)
   (:nicknames "RHO")
 
   (:export
@@ -23,21 +23,19 @@
 		     ; ref$ should be the only means of accessing data
    strand-element-type
 
-   "DATA-FRAME-COLUMN-NAMES"
-   "DATA-FRAME-COLUMN-TYPES"
-   "DATA-FRAME-AS-LISP-ARRAY"
+   data-frame-column-names
+   data-frame-column-types
+   data-frame-as-lisp-array
    pprint-data-frame
 
    ref$ case$
 
    data-frame-columns
 
-
-   ;;  lengthv ;; maybe, maybe not
-
    every-strand
    every-data-frame
 
+   ;;  lengthv ;; maybe, maybe not
    ))
 
 
