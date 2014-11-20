@@ -7,7 +7,7 @@
 (in-package :cl-user)
 
 (defpackage "IT.UNIMIB.DISCO.MA.RHO"
-  (:use "CL")
+  (:use cl alexandria)
   (:nicknames "RHO")
 
   (:export
