@@ -22,7 +22,7 @@ It consists of:
 You cannot rely on UPGRADED-ARRAY-ELEMENT-TYPE (U-A-E-T in the sequel)
 because most implementations are lazy."
 
-  (name nil :type symbol)
+  (name nil :type symbol)  ;;; symbol-or-string ?
   (data #() :type vector) 
   (element-type T))
 
