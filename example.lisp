@@ -472,12 +472,26 @@ data-file-to-strand
   (:documentation "use type information to provide possible summarizes
   which can be applied.")
   (:method ((x number))
-    nil)
+    (list (list "identity" 
+		"round down" "round up" "round"
+		"contrast from X")
+	  (list )))
   (:method ((x string))
     nil))
 
-(defgeneric summarize-collection (x)
+(defgeneric summarize-sequence (x)
   (:documentation "use type information to provide possible summarizes
   which can be applied.")
-  (:method ((x number)) nil)
-  (:method (())))
+  (:method ((x strand))
+    (ctypecase (strand-element-type x)
+      (number nil)
+      (null   nil)))
+  (:method ((x sequence))
+    nil))
+
+(defgeneric summarize-df (x)
+  (:documentation "nest the element summaries with the collection summaries.")
+  ;; for each strand, summarize the collection across the element summarises.
+  (:method ((x data-frame)) nil)
+  (:method ((x array)) nil))
+
