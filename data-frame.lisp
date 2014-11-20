@@ -15,15 +15,18 @@
 A 'strand' is a 'named column' in R.
 
 It consists of:
-1. a NAME (currently a symbol, but probably better as a string?),
+
+1. a NAME (currently a symbol, but probably better as a string?), This
+   conundrum is currently solved by using ALEXANDRIA:STRING-DESIGNATOR
+
 2. DATA, a vector containing the data (element type and values not preset),
-3. the ELEMENT-TYPE (where T is the universal type).
 
-You cannot rely on UPGRADED-ARRAY-ELEMENT-TYPE (U-A-E-T in the sequel)
-because most implementations are lazy."
+3. the ELEMENT-TYPE (where T is the universal type).  You cannot rely
+   on UPGRADED-ARRAY-ELEMENT-TYPE (U-A-E-T in the sequel) because most
+   implementations are lazy."
 
-  (name nil :type symbol)  ;;; symbol-or-string ?
-  (data #() :type vector) 
+  (name nil :type string-designator)
+  (data #() :type vector)
   (element-type T))
 
 (defun make-strand (name
