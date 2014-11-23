@@ -25,8 +25,9 @@ It consists of:
    on UPGRADED-ARRAY-ELEMENT-TYPE (U-A-E-T in the sequel) because most
    implementations are lazy."
 
-  (name nil :type string-designator)
-  (data #() :type vector)
+  (name nil :type symbol) ;; symbol, or string-designator from alexandria?
+  ;; (name nil :type alexandria:string-designator)
+  (data #() :type vector) 
   (element-type T))
 
 (defun make-strand (name
