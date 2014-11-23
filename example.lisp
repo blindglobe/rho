@@ -58,12 +58,30 @@ df-1
 
 
 
+(let ((s (make-strand 'test-strand (vector 0 1 2 3 4) 'fixnum)))
+  (strand-element-type s))
+
+(let ((s (make-strand 'test-strand (vector 0 1 2 3 4) 'fixnum)))
+  (strand-data s))
+
+(let ((s (make-strand 'test-strand (vector 0 1 2 3 4) 'fixnum)))
+  (ref$ (strand-data s) 1))
+
+(let ((s (make-strand 'test-strand (vector 0 1 2 3 4) 'fixnum)))
+  (type-of s ))
+
+#|
+
+(let ((s (make-strand 'test-strand (vector 0 1 2 3 4) 'fixnum)))
+  (ref$ s 1))
 
 (let ((s (make-strand 'test-strand (vector 0 1 2 3 4) 'fixnum)))
   (list (ref$ s 1) (strand-element-type s)))
 
 (let ((s (make-strand 'test-strand (vector 0 1 2 3 4) '(integer 0 10))))
   (list (ref$ s 1) (strand-element-type s)))
+|#
+
 
 #|
   (let ((s (make-strand 'test-strand (vector 0 1 2 3 4) 'fixnum)))
@@ -323,8 +341,8 @@ s1
 (ref$ (aref (data-frame-columns df-2) 1) 1)
 
 
-(ignore-errors 
-  (ref$ (symbol (nth 1 (data-frame-column-names df-2))) 1)) ;;FIXME
+;; (ignore-errors 
+;;   (ref$ (symbol (nth 1 (data-frame-column-names df-2))) 1)) ;;FIXME
 
 
 ;;; To get a row vector, from case 2
@@ -389,6 +407,8 @@ data-file-to-strand
 		"test-df.csv")))
 
 (defparameter csv-var-labels/names (nth 0 csv-file-contents))
+
+(ql:quickload :listoflist)
 
 ;; csv-file-contents is in row-list-form
 (defparameter csv-column-list-form (listoflist:transpose-listoflist csv-file-contents))
@@ -466,25 +486,149 @@ data-file-to-strand
 ;;; This is implemented by adding 2 summary functions, an element-wise
 ;;; and a collection-wise (column-wise) summary
 
+(defun censored-type-p (x)
+  (if (or (equal x "CENSORED")
+	  (equal x "EXACT"))
+      T
+      NIL))
+
+(deftype censored-type ()
+  '(and string (satisfies censored-type-p)))
+
+(defparameter test-cens "CENSORED")
+(type-of test-cens)
+(typep test-cens 'censored-type)
+
+(defclass censored-number ()
+  ((value :type number)
+   (censored :type censored-type))
+  (:documentation "holds a number and an indicator of censoring."))
+
+;;; Element-wise summary functions
 
 
-(defgeneric summarize-element (x)
+;;; -- Common lisp has a few built-ins, so we can use:
+;;; identity, round, floor, ceiling, truncate
+;;; -- for values which are intended to be integers,
+;;; fround, ffloor, fceiling, ftruncate
+(defun plus-5 (x) (+ x 5))
+;; Rounding for complex numbers?
+(defun round-complex-down (x) x)
+(defun round-complex-up (x) x)
+(defun round-complex (x) x)
+(defun signed-distance-from-x (x fixed-point) (- x fixed-point)
+(defun absolution-distance-from-x (x fixed-point) (abs (- x fixed-point)))
+
+
+
+;;; Collection-wise 
+(defun center (v type)
+  (funcall type v)))
+(defun mean-arithmetic (v)
+  (alexandria:mean v))
+(defun mean-geometric (v)
+  v)
+(defun mean-harmonic (v)
+  v)
+(defun median (v)
+  (alexandria:median v))
+(defun mode-discrete (v)
+  v)
+(defun mode-smooth (v smooth)
+  (funcall smooth v))
+
+(defun disperson (v type)
+  (funcall type v))
+(defun variance (v)
+  (alexandria:variance v))
+(defun standard-deviation-unbiased (v)
+  (alexandria:variance v :biased nil))
+(defun standard-deviation-biased (v)
+  (alexandria:variance v :biased T))
+
+(defun quartile (v q)
+  (funcall q v))
+(defun interquartile-range (v)
+  v)
+
+
+(defun kurtosis (v)
+  v)
+
+
+(defun moment-nth (v n)
+  "for first 3 moments, should equal mean, variance, kurtosis."
+  (list n v))
+
+(defun density-function (v type &rest parameters)
+  "Type could be a parametric distribution, in which case we return
+  the function in the first parameter, and in the second and third
+  parameters, the probability family and parameters for the member of
+  the family which best fits the data.
+
+  It could also be a infinite-parameter smooth, ie kernel or spline,
+  or an empirical density function (point-mass with 1/n weights), in
+  which case we return a function of 1 parameter (sequence oe single
+  value) for computing values.
+
+  If type that the user wants is not found, then it should be passed
+  in within the parameters as a function (named or lambda) of V
+  returning an evaluable function."
+
+  (ecase type
+    (empirical (funcall parameters v))
+    (parametric (funcall parameters v))
+    (user-defined (funcall type v parameters)))
+  nil)
+
+
+(defun distribution-function (v type &rest parameters)
+  "Type could be a parametric distribution, in which case we return
+  the function in the first parameter, and in the second and third
+  parameters, the probability family and parameters for the member of
+  the family which best fits the data.
+
+  It could also be a infinite-parameter smooth, ie kernel or spline,
+  or an empirical distribution function (step-function with 1/n
+  jumps), in which case we return a function of 1 parameter (sequence
+  oe single value) for computing values.
+
+  If type that the user wants is not found, then it should be passed
+  in within the parameters as a function (named or lambda) of V
+  returning an evaluable function."
+
+  (ecase type
+    (empirical (funcall parameters v))
+    (parametric (funcall parameters v))
+    (user-defined (funcall type v parameters)))
+  nil)
+			    
+
+
+;;; Primary summary computations
+
+(defgeneric summarize-element (x list-of-summaries)
   (:documentation "use type information to provide possible summarizes
   which can be applied.")
-  (:method ((x number))
-    (list (list "identity" 
-		"round down" "round up" "round"
+  (:method ((x number) (list-of-summaries list))
+   (list #'identity 
+	  #'round #'round-down #'round-up 
 		"contrast from X")
-	  (list )))
-  (:method ((x string))
+    (list )
+    nil
+    )
+  (:method ((x censored-number) (list-of-summaries list))
+    nil)
+  (:method ((x string) (list-of-summaries list))
     nil))
 
-(defgeneric summarize-sequence (x)
+(defgeneric summarize-collection (x )
   (:documentation "use type information to provide possible summarizes
-  which can be applied.")
+  which can be applied, to sequences and superclasses.")
   (:method ((x strand))
     (ctypecase (strand-element-type x)
       (number nil)
+      (censored-number nil)
       (null   nil)))
   (:method ((x sequence))
     nil))
@@ -494,4 +638,13 @@ data-file-to-strand
   ;; for each strand, summarize the collection across the element summarises.
   (:method ((x data-frame)) nil)
   (:method ((x array)) nil))
+
+
+;;; Testing to build it all together.
+
+(defparameter list-of-summary-functions
+  (list #'identity #'plus-5))
+
+(defparameter test-strand (make-strand 'bcaus #(1 2 3 4 5 6) 'fixnum))
+(summarize-element test-strand :summary-with list-of-summary-functions)
 
